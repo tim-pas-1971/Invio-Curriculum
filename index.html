@@ -14,6 +14,7 @@
             --border-color: #dddddd;
             --ins-color: #e06666;
             --search-color: #4a69bd;
+            --backup-color: #4b5563;
         }
 
         * {
@@ -38,10 +39,23 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         nav {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+        }
+
+        .backup-actions {
+            display: flex;
+            gap: 10px;
         }
 
         .nav-btn {
@@ -57,6 +71,14 @@
         .nav-btn.active {
             background-color: var(--primary-color);
             color: white;
+        }
+
+        .btn-backup {
+            background-color: var(--backup-color);
+            color: white;
+        }
+        .btn-backup:hover {
+            background-color: #374151;
         }
 
         .container {
@@ -143,8 +165,7 @@
         .currency-input::before {
             content: "€";
             position: absolute;
-            left: 10px;
-            top: 8px;
+            left: 10px; top: 8px;
             font-size: 14px;
             color: #555;
         }
@@ -194,9 +215,7 @@
             padding-right: 20px;
         }
 
-        th.sortable:hover {
-            background-color: #e2e2e2;
-        }
+        th.sortable:hover { background-color: #e2e2e2; }
 
         th.sortable::after {
             content: " ↕";
@@ -294,12 +313,20 @@
         <p>Monitoraggio e Gestione delle Attività di Candidatura</p>
     </header>
 
-    <nav>
-        <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">Autocandidature</button>
-        <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">Risposta Inserzioni</button>
-        <button id="tab-search-btn" class="nav-btn" onclick="switchMainTab('ricerca')">Ricerca Avanzata</button>
-        <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
-    </nav>
+    <div class="nav-container">
+        <nav>
+            <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">Autocandidature</button>
+            <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">Risposta Inserzioni</button>
+            <button id="tab-search-btn" class="nav-btn" onclick="switchMainTab('ricerca')">Ricerca Avanzata</button>
+            <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
+        </nav>
+        
+        <div class="backup-actions">
+            <button class="nav-btn btn-backup" onclick="exportDataToJSON()">Esporta Backup (JSON)</button>
+            <button class="nav-btn btn-backup" onclick="document.getElementById('import-file-input').click()">Importa Backup (JSON)</button>
+            <input type="file" id="import-file-input" class="hidden" accept=".json" onchange="importDataFromJSON(event)">
+        </div>
+    </div>
 
     <div id="autocandidature-tab" class="container">
         <h2>Nuova Autocandidatura</h2>
@@ -558,7 +585,7 @@
         </form>
 
         <div class="table-responsive">
-            <h3>Registro Risponses Inserzioni</h3>
+            <h3>Registro Risposte Inserzioni</h3>
             <table>
                 <thead>
                     <tr>
@@ -733,9 +760,9 @@
         let elencoAuto = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
         let elencoIns = JSON.parse(localStorage.getItem('track_inserzioni')) || [];
         
-        let searchResultsBuffer = []; // Buffer per memorizzare i risultati filtrati correnti
+        let searchResultsBuffer = [];
         let currentSortField = '';
-        let currentSortOrder = 'asc'; // 'asc' o 'desc'
+        let currentSortOrder = 'asc';
 
         const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '', esito: 'In fase di valutazione' });
         const defaultInvioDetails = () => ({
@@ -1175,7 +1202,7 @@
         }
 
         // ==========================================
-        // PARTE 3: MOTORE DI RICERCA AVANZATO & ORDINABILE
+        // PARTE 3: MOTORE DI RICERCA AVANZATO
         // ==========================================
         function executeSearch() {
             const tipo = document.getElementById('search-tipo').value;
@@ -1190,7 +1217,6 @@
 
             searchResultsBuffer = [];
 
-            // 1. Filtraggio Autocandidature
             if(tipo === "TUTTE" || tipo === "AUTO") {
                 elencoAuto.forEach((item, index) => {
                     if(azienda && !item.azienda.toLowerCase().includes(azienda)) return;
@@ -1239,7 +1265,6 @@
                 });
             }
 
-            // 2. Filtraggio Risposte Inserzioni
             if(tipo === "TUTTE" || tipo === "INS") {
                 elencoIns.forEach((item, index) => {
                     const azNome = item.aziendaRichiedente || 'Azienda Anonima';
@@ -1288,13 +1313,8 @@
             }
 
             document.getElementById('search-count').innerText = searchResultsBuffer.length;
-            
-            // Applica l'ordinamento se attivo, altrimenti renderizza direttamente
-            if (currentSortField) {
-                applySortLogic();
-            } else {
-                renderSearchTableHTML();
-            }
+            if (currentSortField) applySortLogic();
+            else renderSearchTableHTML();
         }
 
         function renderSearchTableHTML() {
@@ -1320,11 +1340,8 @@
         }
 
         function sortTable(field, thElement) {
-            // Gestione classi grafiche freccia su intestazioni
             const headers = document.querySelectorAll('th.sortable');
-            headers.forEach(h => {
-                if(h !== thElement) h.className = 'sortable';
-            });
+            headers.forEach(h => { if(h !== thElement) h.className = 'sortable'; });
 
             if (currentSortField === field) {
                 currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
@@ -1339,8 +1356,8 @@
 
         function applySortLogic() {
             searchResultsBuffer.sort((a, b) => {
-                let valA = a[currentSortField].toLowerCase();
-                let valB = b[currentSortField].toLowerCase();
+                let valA = (a[currentSortField] || '').toLowerCase();
+                let valB = (b[currentSortField] || '').toLowerCase();
 
                 if (currentSortField === 'data') {
                     valA = a.data || '0000-00-00';
@@ -1351,17 +1368,67 @@
                 if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
                 return 0;
             });
-
             renderSearchTableHTML();
         }
 
-        function goToRecordAndEdit(tabId, index) {
-            switchMainTab(tabId);
-            if(tabId === 'autocandidature') loadEditAuto(index);
-            else if(tabId === 'inserzioni') loadEditIns(index);
+        // ==========================================
+        // PARTE 4: LOGICA DI BACKUP EXPORT / IMPORT (NUOVA)
+        // ==========================================
+        function exportDataToJSON() {
+            const backupObject = {
+                autocandidature: elencoAuto,
+                inserzioni: elencoIns,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObject, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "job_tracker_backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
 
-        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
+        function importDataFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validazione strutturale minima prima di sovrascrivere
+                    if (importedData && (importedData.autocandidature || importedData.inserzioni)) {
+                        if (confirm("Attenzione: caricando questo file, le candidature attualmente presenti nel browser verranno sostituite con quelle del backup. Vuoi procedere?")) {
+                            
+                            elencoAuto = importedData.autocandidature || [];
+                            elencoIns = importedData.inserzioni || [];
+                            
+                            localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
+                            localStorage.setItem('track_inserzioni', JSON.stringify(elencoIns));
+                            
+                            // Aggiorna visivamente tutta l'applicazione
+                            renderTableAuto();
+                            renderTableIns();
+                            executeSearch();
+                            
+                            alert("Importazione completata con successo! Dati aggiornati.");
+                        }
+                    } else {
+                        alert("Errore: Il formato del file JSON non sembra essere un backup valido di Job Tracker.");
+                    }
+                } catch (err) {
+                    alert("Errore durante la lettura del file: assicurati che sia un file JSON valido.");
+                    console.error(err);
+                }
+                // Resetta l'input per permettere lo stesso file due volte di fila
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
         function formatDate(dateStr) {
             if(!dateStr) return '';
             const d = dateStr.split('-');
