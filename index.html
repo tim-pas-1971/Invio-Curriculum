@@ -423,11 +423,6 @@
         .badge-ins { background-color: var(--btn-ins-color); }
 
         .hidden { display: none !important; }
-    </style>
-</head>
-<body>
-
-    <header>
         <h1>Gestione Candidature</h1>
         <p>Il tuo spazio di controllo ottimizzato per il rientro nel mondo del lavoro</p>
     </header>
@@ -914,6 +909,27 @@
 
         let currentDetailsBufferAuto = { invio1: defaultInvioDetails(), invio2: defaultInvioDetails(), invio3: defaultInvioDetails() };
 
+         function renderTableIns() {
+            const tbody = document.getElementById('data-table-body-ins');
+            tbody.innerHTML = '';
+            elencoIns.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.posizione}</strong><br><small>${item.aziendaRichiedente || 'Azienda Anonima'}${item.localitaAzienda ? ` - ${item.localitaAzienda}` : ''}</small></td>
+                    <td>P: ${item.portale}${item.portaleSec ? ` <br><small>S: ${item.portaleSec}</small>` : ''}</td>
+                    <td>${formatDate(item.dataRisposta)}</td>
+                    <td>${item.tipoContratto || '-'}${item.subContratto ? ` (${item.subContratto})` : ''}${item.tempistica ? ` - ${item.tempistica}` : ''}</td>
+                    <td>${item.sede || '-'}</td>
+                    <td><strong>${item.stato || 'Non impostato'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
+                    <td>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--btn-ins-color); border:none; border-radius:4px; cursor:pointer;" onclick="loadEditIns(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteIns(${index})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+                                            
         window.onload = function() {
             renderTableAuto();
             renderTableIns();
@@ -1032,6 +1048,7 @@
     tbody.innerHTML = '';
     elencoAuto.forEach((item, index) => {
         const tr = document.createElement('tr');
+        // Qui usiamo formatDate() per ogni campo data
         tr.innerHTML = `
             <td><strong>${item.azienda}</strong> ${item.settore ? `<br><small style="color:#718096;">S: ${item.settore}</small>` : ''}</td>
             <td>${item.comune} ${item.km ? `<br><small style="color:#718096; font-weight:bold;">(${item.km} Km)</small>` : ''}</td>
@@ -1219,28 +1236,7 @@
             }
         }
 
-        function renderTableIns() {
-            const tbody = document.getElementById('data-table-body-ins');
-            tbody.innerHTML = '';
-            elencoIns.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${item.posizione}</strong><br><small>${item.aziendaRichiedente || 'Azienda Anonima'}${item.localitaAzienda ? ` - ${item.localitaAzienda}` : ''}</small></td>
-                    <td>P: ${item.portale}${item.portaleSec ? ` <br><small>S: ${item.portaleSec}</small>` : ''}</td>
-                    <td>${formatDate(item.dataRisposta)}</td>
-                    <td>${item.tipoContratto || '-'}${item.subContratto ? ` (${item.subContratto})` : ''}${item.tempistica ? ` - ${item.tempistica}` : ''}</td>
-                    <td>${item.sede || '-'}</td>
-                    <td><strong>${item.stato || 'Non impostato'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
-                    <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--btn-ins-color); border:none; border-radius:4px; cursor:pointer;" onclick="loadEditIns(${index})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteIns(${index})"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function saveDataIns(e) {
+       function saveDataIns(e) {
             e.preventDefault();
             const index = document.getElementById('edit-index-ins').value;
             
@@ -1571,10 +1567,17 @@
 
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         function formatDate(dateStr) {
-            if(!dateStr) return '';
-            const d = dateStr.split('-');
-            return `${d[2]}/${d[1]}/${d[0]}`;
-        }
+    if (!dateStr || dateStr === "-") return '-';
+    
+    // Se è già nel formato aaaa-mm-gg (standard database)
+    if (dateStr.includes('-') && dateStr.split('-')[0].length === 4) {
+        const d = dateStr.split('-');
+        return `${d[2]}/${d[1]}/${d[0]}`;
+    }
+    
+    // Se è nel formato leggibile "2-Mar-26"
+    return dateStr; 
+}
         // Funzione per pulire e uniformare i settori automaticamente
         function normalizzaSettore(s) {
             if (!s) return "Altro";
