@@ -325,22 +325,11 @@
         <form id="ins-form" onsubmit="saveDataIns(event)">
             <input type="hidden" id="edit-index-ins" value="">
 
-            <div class="grid-4">
+            <div class="grid-3 inserzioni-bar">
                 <div class="form-group">
                     <label>Data risposta inserzione *</label>
                     <input type="date" id="ins-data-risposta" required>
                 </div>
-                <div class="form-group">
-                    <label>Azienda richiedente</label>
-                    <input type="text" id="ins-azienda-richiedente">
-                </div>
-                <div class="form-group">
-                    <label>Titolo della Posizione *</label>
-                    <input type="text" id="ins-posizione" required>
-                </div>
-            </div>
-
-            <div class="grid-4 inserzioni-bar">
                 <div class="form-group">
                     <label>Agenzia per il Lavoro / Portale (principale) *</label>
                     <select id="ins-portale" required>
@@ -355,7 +344,7 @@
                         <option value="Job Rapido">Job Rapido</option>
                         <option value="JobToMe">JobToMe</option>
                         <option value="Jobeka">Jobeka</option>
-                        <option value="Kinkedin">Kinkedin</option>
+                        <option value="Linkedin">Linkedin</option>
                         <option value="ManPower">ManPower</option>
                         <option value="Milanogi">Milanogi</option>
                         <option value="NetToWork">NetToWork</option>
@@ -381,7 +370,7 @@
                         <option value="Job Rapido">Job Rapido</option>
                         <option value="JobToMe">JobToMe</option>
                         <option value="Jobeka">Jobeka</option>
-                        <option value="Kinkedin">Kinkedin</option>
+                        <option value="Linkedin">Linkedin</option>
                         <option value="ManPower">ManPower</option>
                         <option value="Milanogi">Milanogi</option>
                         <option value="NetToWork">NetToWork</option>
@@ -392,6 +381,17 @@
                         <option value="Umana">Umana</option>
                         <option value="Altro">Altro ...</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="grid-4 inserzioni-bar">
+                <div class="form-group">
+                    <label>Azienda richiedente</label>
+                    <input type="text" id="ins-azienda-richiedente">
+                </div>
+                <div class="form-group">
+                    <label>Titolo della Posizione *</label>
+                    <input type="text" id="ins-posizione" required>
                 </div>
                 <div class="form-group">
                     <label>Retribuzione Minima (€)</label>
@@ -825,12 +825,10 @@
             const tempGroup = document.getElementById('tempistica-contratto-group');
             const label = document.getElementById('sub-contratto-label');
             
-            // Gestione Dinamica Sottotendina
             if(val === "Tempo determinato" || val === "Contratto somministrazione") {
                 detGroup.classList.remove('hidden');
                 tempGroup.classList.remove('hidden');
                 
-                // Calibra il titolo in base alla selezione
                 if(val === "Tempo determinato") {
                     label.innerText = "Specifiche Tempo Determinato";
                 } else {
