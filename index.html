@@ -4,19 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Candidature</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #1e457e;
-            --bg-color: #f4f6f9;
+            --bg-color: #f0f4f8;
             --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #dddddd;
+            --text-color: #2c3e50;
+            --border-color: #e2e8f0;
             
-            /* Colori Sezioni Richiesti */
-            --btn-auto-color: #1a5296;
-            --btn-ins-color: #ba3c13;
-            --btn-search-color: #8c1991;
-            --btn-charts-color: #1e7d34;
+            /* Palette Vitaminica e Ottimistica */
+            --btn-auto-color: #007aff;     /* Blu Sky Brillante */
+            --btn-ins-color: #ff6b35;      /* Arancio Mandarino Vitaminico */
+            --btn-search-color: #d63031;   /* Rosso Corallo Energetico */
+            --btn-charts-color: #2ed573;   /* Verde Lime/Prato Positivo */
+            
+            --header-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         }
 
         * {
@@ -33,23 +35,24 @@
         }
 
         header {
-            background-color: #223147;
+            background: var(--header-bg);
             color: white;
-            padding: 18px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 22px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.2);
         }
 
         header h1 {
-            font-size: 26px;
+            font-size: 28px;
             letter-spacing: 0.5px;
+            font-weight: 700;
         }
 
         header p {
             font-size: 14px;
-            opacity: 0.8;
-            margin-top: 2px;
+            opacity: 0.9;
+            margin-top: 4px;
         }
 
         .nav-container {
@@ -63,84 +66,101 @@
 
         nav {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         .backup-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
-        /* Styling pulsanti di Navigazione Principali */
+        /* Styling Pulsanti di Navigazione Principali con Icone */
         .nav-btn {
             border: none;
-            padding: 12px 22px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
             color: white;
             font-size: 14px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            opacity: 0.65;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            opacity: 0.55;
+        }
+
+        .nav-btn i {
+            font-size: 16px;
         }
 
         .nav-btn:hover {
             opacity: 0.85;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
         .nav-btn.active {
             opacity: 1 !important;
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.15);
+            transform: translateY(0);
+            box-shadow: inset 0 -4px 0 rgba(0,0,0,0.25), 0 6px 15px rgba(0,0,0,0.15);
         }
 
         #tab-auto-btn { background-color: var(--btn-auto-color); }
         #tab-ins-btn { background-color: var(--btn-ins-color); }
-        #tab-search-btn { background-color: var(--btn-search-color); }
-        #tab-charts-btn { background-color: var(--btn-charts-color); opacity: 0.5; } /* Inattivo ma colorato */
+        #tab-search-btn { background-color: #a55eea; } /* Viola Orchidea Acceso */
+        #tab-charts-btn { background-color: var(--btn-charts-color); }
 
-        /* Styling Pulsanti Metallici di Backup */
+        /* Styling Pulsanti Metallici Lucidi 3D */
         .btn-backup-export {
-            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
-            color: #2c3e50;
-            border: 1px solid #7f8c8d;
-            padding: 12px 18px;
-            border-radius: 6px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            border: 1px solid #b2bec3;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 13px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: all 0.2s;
         }
         .btn-backup-export:hover {
-            background: linear-gradient(135deg, #cacfd2 0%, #a6acaf 100%);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #ffffff 0%, #d5dbdb 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
         .btn-backup-import {
-            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            background: linear-gradient(135deg, #ffeaa7 0%, #e67e22 100%);
             color: white;
-            border: 1px solid #8a650f;
-            padding: 12px 18px;
-            border-radius: 6px;
+            border: 1px solid #d35400;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 13px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: all 0.2s;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .btn-backup-import:hover {
-            background: linear-gradient(135deg, #dfba48 0%, #b88616 100%);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #fff2cc 0%, #f39c12 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
         .container {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
         }
 
         .form-group {
@@ -149,21 +169,30 @@
 
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-weight: 600;
+            color: #4a5568;
         }
 
         input[type="text"], input[type="date"], input[type="time"], input[type="tel"], input[type="email"], input[type="number"], select, textarea {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
+            transition: border-color 0.2s;
+            background-color: #f8fafc;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3182ce;
+            background-color: #fff;
         }
 
         textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 90px;
         }
 
         .grid-4 {
@@ -182,26 +211,26 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 6px;
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 8px;
             margin-bottom: 15px;
-            border-left: 4px solid var(--btn-auto-color);
+            border-left: 5px solid var(--btn-auto-color);
         }
 
         .grid-3.inserzioni-bar, .grid-4.inserzioni-bar, .grid-6.inserzioni-bar {
-            border-left: 4px solid var(--btn-ins-color);
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 6px;
+            border-left: 5px solid var(--btn-ins-color);
+            background: #fdf6f0;
+            padding: 18px;
+            border-radius: 8px;
             margin-bottom: 15px;
         }
 
         .grid-4.search-bar {
-            border-left: 4px solid var(--btn-search-color);
-            background: #f0f4f8;
-            padding: 15px;
-            border-radius: 6px;
+            border-left: 5px solid #a55eea;
+            background: #faf5ff;
+            padding: 18px;
+            border-radius: 8px;
             margin-bottom: 15px;
         }
 
@@ -220,29 +249,33 @@
         .currency-input::before {
             content: "€";
             position: absolute;
-            left: 10px; top: 8px;
+            left: 10px; top: 10px;
             font-size: 14px;
-            color: #555;
+            color: #718096;
         }
 
         button.action-btn {
             cursor: pointer;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: background 0.2s;
+            border-radius: 6px;
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button.action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
         .btn-primary { background-color: #2b5797; color: white; }
         .btn-primary:hover { background-color: #1e3d6b; }
-        .btn-accent { background-color: var(--accent-color); color: white; margin-top: 15px; }
-        .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-close { background-color: #dc3545; color: white; }
+        .btn-details { background-color: #4a5568; color: white; padding: 10px 12px; font-size: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-close { background-color: #e53e3e; color: white; }
 
         .table-responsive {
             overflow-x: auto;
-            margin-top: 25px;
+            margin-top: 30px;
         }
 
         table {
@@ -253,13 +286,14 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 14px;
             border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: #f2f2f2;
-            font-weight: 600;
+            background-color: #edf2f7;
+            font-weight: 700;
+            color: #4a5568;
         }
 
         th.sortable {
@@ -268,26 +302,18 @@
             position: relative;
             padding-right: 20px;
         }
+        th.sortable:hover { background-color: #e2e8f0; }
+        th.sortable::after { content: " ↕"; position: absolute; right: 6px; color: #a0aec0; }
+        th.sort-asc::after { content: " ↑"; color: #2d3748; }
+        th.sort-desc::after { content: " ↓"; color: #2d3748; }
 
-        th.sortable:hover { background-color: #e2e2e2; }
-
-        th.sortable::after {
-            content: " ↕";
-            position: absolute;
-            right: 5px;
-            color: #999;
-        }
-
-        th.sort-asc::after { content: " ↑"; color: black; }
-        th.sort-desc::after { content: " ↓"; color: black; }
-
-        tr:hover { background-color: #f8f9fa; }
+        tr:hover { background-color: #f8fafc; }
 
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.4);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -295,13 +321,13 @@
 
         .modal-content {
             background: white;
-            padding: 25px;
-            border-radius: 8px;
+            padding: 30px;
+            border-radius: 12px;
             width: 95%;
             max-width: 850px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
         }
 
         .modal-header {
@@ -310,51 +336,53 @@
             align-items: center;
             margin-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
         }
 
         .section-colloqui {
-            background: #f0f7ff;
-            padding: 15px;
-            border-radius: 6px;
+            background: #ebf8ff;
+            padding: 18px;
+            border-radius: 8px;
             margin-top: 20px;
-            border: 1px solid #b8daff;
+            border: 1px solid #bee3f8;
         }
 
         .colloqui-tabs {
             display: flex;
-            gap: 5px;
-            margin: 10px 0;
+            gap: 6px;
+            margin: 12px 0;
         }
 
         .coll-tab-btn {
-            background: #ced4da;
-            padding: 6px 12px;
+            background: #cbd5e0;
+            padding: 8px 14px;
             font-size: 13px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-weight: 600;
         }
 
         .coll-tab-btn.active {
-            background: #0056b3;
+            background: #2b6cb0;
             color: white;
         }
 
         .panel-coll {
             background: white;
             padding: 15px;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
             margin-top: 5px;
         }
 
         .badge {
             display: inline-block;
-            padding: 3px 6px;
+            padding: 4px 8px;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 700;
             color: white;
-            border-radius: 3px;
+            border-radius: 4px;
         }
         .badge-auto { background-color: var(--btn-auto-color); }
         .badge-ins { background-color: var(--btn-ins-color); }
@@ -366,26 +394,34 @@
 
     <header>
         <h1>Gestione Candidature</h1>
-        <p>Monitoraggio e Registro delle Attività di Invio Curriculum</p>
+        <p>Il tuo spazio di controllo ottimizzato per il rientro nel mondo del lavoro</p>
     </header>
 
     <div class="nav-container">
         <nav>
-            <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">Autocandidature</button>
-            <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">Risposta Inserzioni</button>
-            <button id="tab-search-btn" class="nav-btn" onclick="switchMainTab('ricerca')">Ricerca Avanzata</button>
-            <button id="tab-charts-btn" class="nav-btn" onclick="alert('Sezione Grafica & Statistiche: Configurazione futura')">Grafica & Statistiche</button>
+            <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">
+                <i class="fa-solid fa-compass"></i> Autocandidature
+            </button>
+            <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">
+                <i class="fa-solid fa-magnifying-glass-briefcase"></i> Risposta Inserzioni
+            </button>
+            <button id="tab-search-btn" class="nav-btn" onclick="switchMainTab('ricerca')">
+                <i class="fa-solid fa-filter"></i> Ricerca Avanzata
+            </button>
+            <button id="tab-charts-btn" class="nav-btn" onclick="alert('Sezione Grafica & Statistiche: Configurazione futura')">
+                <i class="fa-solid fa-chart-line"></i> Grafica & Statistiche
+            </button>
         </nav>
         
         <div class="backup-actions">
-            <button class="btn-backup-export" onclick="exportDataToJSON()">Esporta Backup (JSON) 📥</button>
-            <button class="btn-backup-import" onclick="document.getElementById('import-file-input').click()">Importa Backup (JSON) 📤</button>
+            <button class="btn-backup-export" onclick="exportDataToJSON()">Esporta Backup (JSON) <i class="fa-solid fa-cloud-arrow-down"></i></button>
+            <button class="btn-backup-import" onclick="document.getElementById('import-file-input').click()">Importa Backup (JSON) <i class="fa-solid fa-cloud-arrow-up"></i></button>
             <input type="file" id="import-file-input" class="hidden" accept=".json" onchange="importDataFromJSON(event)">
         </div>
     </div>
 
     <div id="autocandidature-tab" class="container">
-        <h2 style="color: var(--btn-auto-color); margin-bottom: 15px;">Nuova Autocandidatura</h2>
+        <h2 style="color: var(--btn-auto-color); margin-bottom: 18px;"><i class="fa-solid fa-paper-plane"></i> Nuova Autocandidatura</h2>
         <form id="app-form" onsubmit="saveDataAuto(event)">
             <input type="hidden" id="edit-index-auto" value="">
             
@@ -413,21 +449,21 @@
                     <label>Data 1° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data1">
-                        <button type="button" class="btn-details" onclick="openDetailsAuto(1)">DETTAGLI RELATIVI AL 1° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(1)">DETTAGLI 1° INVIO</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 2° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data2">
-                        <button type="button" class="btn-details" onclick="openDetailsAuto(2)">DETTAGLI RELATIVI AL 2° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(2)">DETTAGLI 2° INVIO</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 3° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data3">
-                        <button type="button" class="btn-details" onclick="openDetailsAuto(3)">DETTAGLI RELATIVI AL 3° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(3)">DETTAGLI 3° INVIO</button>
                     </div>
                 </div>
             </div>
@@ -436,7 +472,7 @@
         </form>
 
         <div class="table-responsive">
-            <h3>Registro Autocandidature</h3>
+            <h3 style="margin-bottom: 10px; color: #4a5568;">Registro Autocandidature</h3>
             <table>
                 <thead>
                     <tr>
@@ -455,7 +491,7 @@
     </div>
 
     <div id="inserzioni-tab" class="container hidden">
-        <h2 style="color: var(--btn-ins-color); margin-bottom: 15px;">Nuova Risposta a Inserzione</h2>
+        <h2 style="color: var(--btn-ins-color); margin-bottom: 18px;"><i class="fa-solid fa-briefcase"></i> Nuova Risposta a Inserzione</h2>
         <form id="ins-form" onsubmit="saveDataIns(event)">
             <input type="hidden" id="edit-index-ins" value="">
 
@@ -641,7 +677,7 @@
         </form>
 
         <div class="table-responsive">
-            <h3>Registro Risposte Inserzioni</h3>
+            <h3 style="margin-bottom: 10px; color: #4a5568;">Registro Risposte Inserzioni</h3>
             <table>
                 <thead>
                     <tr>
@@ -660,7 +696,7 @@
     </div>
 
     <div id="ricerca-tab" class="container hidden">
-        <h2 style="color: var(--btn-search-color); margin-bottom: 15px;">Pannello Ricerca Avanzata</h2>
+        <h2 style="color: #a55eea; margin-bottom: 18px;"><i class="fa-solid fa-filter"></i> Pannello Ricerca Avanzata</h2>
         <p style="font-size:13px; color:#555; margin-bottom:15px;">I risultati si aggiornano automaticamente modificando i filtri sottostanti. Clicca sulle intestazioni della tabella per ordinare i dati.</p>
         
         <div class="grid-4 search-bar">
@@ -743,7 +779,7 @@
         </div>
 
         <div class="table-responsive">
-            <h3>Risultati della Ricerca (<span id="search-count">0</span> trovati)</h3>
+            <h3 style="margin-bottom: 10px; color: #4a5568;">Risultati della Ricerca (<span id="search-count">0</span> trovati)</h3>
             <table>
                 <thead>
                     <tr>
@@ -808,7 +844,7 @@
                 </div>
                 <div id="panel-coll-container"></div>
             </div>
-            <button type="button" class="btn-primary" style="margin-top:25px; width:100%; padding:10px 0; border:none; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="saveDetailsContextualAuto()">Conferma e Salva Dettagli Invio</button>
+            <button type="button" class="btn-primary" style="margin-top:25px; width:100%; padding:12px 0; border:none; border-radius:6px; cursor:pointer; font-weight:bold;" onclick="saveDetailsContextualAuto()">Conferma e Salva Dettagli Invio</button>
         </div>
     </div>
 
@@ -844,6 +880,7 @@
             document.getElementById('tab-auto-btn').classList.remove('active');
             document.getElementById('tab-ins-btn').classList.remove('active');
             document.getElementById('tab-search-btn').classList.remove('active');
+            document.getElementById('tab-charts-btn').classList.remove('active');
 
             if(target === 'autocandidature') {
                 document.getElementById('autocandidature-tab').classList.remove('hidden');
@@ -953,8 +990,8 @@
                     <td>${item.data2 ? formatDate(item.data2) : '-'} ${item.invio2?.stato ? `<br><small>(${item.invio2.stato})</small>` : ''}</td>
                     <td>${item.data3 ? formatDate(item.data3) : '-'} ${item.invio3?.stato ? `<br><small>(${item.invio3.stato})</small>` : ''}</td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="loadEditAuto(${index})">Modifica</button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteAuto(${index})">Elimina</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteAuto(${index})"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1140,8 +1177,8 @@
                     <td>${item.sede || '-'}</td>
                     <td><strong>${item.stato || 'Non impostato'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--btn-ins-color); border:none; border-radius:4px; cursor:pointer;" onclick="loadEditIns(${index})">Modifica</button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteIns(${index})">Elimina</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--btn-ins-color); border:none; border-radius:4px; cursor:pointer;" onclick="loadEditIns(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteIns(${index})"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1388,7 +1425,7 @@
                     <td><small>${item.fonte}</small></td>
                     <td><small>${item.stato}</small></td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:11px; border:none; border-radius:4px; cursor:pointer;" onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Vedi/Modifica</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:11px; border:none; border-radius:4px; cursor:pointer;" onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Apri</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
