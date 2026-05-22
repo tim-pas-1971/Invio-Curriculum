@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker - Gestione Candidature</title>
+    <style>
+        :root {
+            --primary-color: #2b5797;
+            --accent-color: #00a300;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --positive-color: #d4edda;
+            --negative-color: #f8d7da;
+            --archive-color: #e2e3e5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="date"], input[type="time"], input[type="tel"], input[type="email"], select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .date-input-group {
+            display: flex;
+            gap: 5px;
+            align-items: flex-end;
+        }
+
+        btn, button {
+            cursor: pointer;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: #1e3d6b; }
+        .btn-accent { background-color: var(--accent-color); color: white; margin-top: 15px; }
+        .btn-accent:hover { background-color: #008200; }
+        .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; }
+        .btn-details:hover { background-color: #5a6268; }
+        .btn-close { background-color: #dc3545; color: white; }
+
+        /* Tabella Dati */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+
+        tr:hover { background-color: #f8f9fa; }
+
+        /* Modale Dettagli */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .sub-section {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #b8daff;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Job Tracker</h1>
+        <p>Monitoraggio e Gestione delle Attività di Candidatura</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('autocandidature')">Autocandidature</button>
+        <button class="nav-btn" onclick="alert('Sezione Inserzioni: Configurazione futura')">Risposta Inserzioni</button>
+        <button class="nav-btn" onclick="alert('Sezione Ricerca: Configurazione futura')">Ricerca Avanzata</button>
+        <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
+    </nav>
+
+    <div id="autocandidature-tab" class="container">
+        <h2>Nuova Autocandidatura</h2>
+        <form id="app-form" onsubmit="saveData(event)">
+            <input type="hidden" id="edit-index" value="">
+            
+            <!-- Anagrafica Fissa -->
+            <div class="grid-4">
+                <div class="form-group">
+                    <label>Azienda / Ente / Scuola *</label>
+                    <input type="text" id="azienda" required>
+                </div>
+                <div class="form-group">
+                    <label>Indirizzo</label>
+                    <input type="text" id="indirizzo">
+                </div>
+                <div class="form-group">
+                    <label>Città / Comune *</label>
+                    <input type="text" id="comune" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefono</label>
+                    <input type="tel" id="telefono">
+                </div>
+            </div>
+
+            <!-- Sezione Date Invio -->
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Data 1° Invio</label>
+                    <div class="date-input-group">
+                        <input type="date" id="data1">
+                        <button type="button" class="btn-details" onclick="openDetails(1)">DETTAGLI</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Data 2° Invio</label>
+                    <div class="date-input-group">
+                        <input type="date" id="data2">
+                        <button type="button" class="btn-details" onclick="openDetails(2)">DETTAGLI</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Data 3° Invio</label>
+                    <div class="date-input-group">
+                        <input type="date" id="data3">
+                        <button type="button" class="btn-details" onclick="openDetails(3)">DETTAGLI</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-accent">Salva Scheda Azienda</button>
+        </form>
+
+        <!-- Tabella di Visualizzazione -->
+        <div class="table-responsive">
+            <h3>Registro Autocandidature</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Azienda/Scuola</th>
+                        <th>Comune</th>
+                        <th>Telefono</th>
+                        <th>1° Invio</th>
+                        <th>2° Invio</th>
+                        <th>3° Invio</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <!-- I dati inseriti compariranno qui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODALE DETTAGLI INVIO (Dinamica) -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Dettagli Invio</h3>
+                <button type="button" class="btn-close" onclick="closeModal()">X</button>
+            </div>
+            
+            <input type="hidden" id="current-details-num" value="">
+
+            <div class="form-group">
+                <label>Contatto di riferimento (Mail / Nominativo)</label>
+                <input type="text" id="det-contatto" placeholder="Es. Rossi Mario o info@azienda.it">
+            </div>
+
+            <div class="form-group">
+                <label>Modalità di consegna alternativa</label>
+                <select id="det-modalita">
+                    <option value="">-- Seleziona (Opzionale) --</option>
+                    <option value="CONSEGNATA A MANO">CONSEGNATA A MANO</option>
+                    <option value="PORTALE AZIENDALE">PORTALE AZIENDALE</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Lettera di accompagnamento</label>
+                <textarea id="det-lettera" placeholder="Inserisci qui il testo del messaggio inviato..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Stato Invio</label>
+                <select id="det-stato" onchange="toggleColloquioSection()">
+                    <option value="">-- Seleziona Stato --</option>
+                    <option value="Riscontro positivo">Riscontro positivo</option>
+                    <option value="Riscontro negativo">Riscontro negativo</option>
+                    <option value="Archiviata">Archiviata</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Data dell'evento Stato (Riscontro / Archivio)</label>
+                <input type="date" id="det-data-stato">
+            </div>
+
+            <!-- Sotto-sezione Colloquio Dinamica -->
+            <div id="colloquio-section" class="sub-section hidden">
+                <h4>Dettagli 1° Colloquio</h4>
+                <div class="grid-4" style="margin-top: 10px;">
+                    <div class="form-group">
+                        <label>Tipo colloquio</label>
+                        <select id="coll-tipo">
+                            <option value="telefonico">Telefonico</option>
+                            <option value="on line">On-line</option>
+                            <option value="di persona">Di persona</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="coll-data">
+                    </div>
+                    <div class="form-group">
+                        <label>Ora</label>
+                        <input type="time" id="coll-ora">
+                    </div>
+                    <div class="form-group">
+                        <label>Indirizzo (se di persona)</label>
+                        <input type="text" id="coll-indirizzo">
+                    </div>
+                </div>
+                <div class="grid-4">
+                    <div class="form-group">
+                        <label>Persona da incontrare</label>
+                        <input type="text" id="coll-nominativo">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono referente</label>
+                        <input type="tel" id="coll-tel">
+                    </div>
+                    <div class="form-group">
+                        <label>Mail referente</label>
+                        <input type="email" id="coll-mail">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn-primary" style="margin-top:15px; width:100%;" onclick="saveDetailsContexual()">Conferma e Salva Dettagli Invio</button>
+        </div>
+    </div>
+
+    <script>
+        // Database in memoria locale
+        let elencoCandidature = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
+        
+        // Struttura di default per i dettagli di un singolo invio
+        const defaultInvioDetails = () => ({
+            contatto: '', modalita: '', lettera: '', stato: '', dataStato: '',
+            colloquio: { tipo: 'telefonico', data: '', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '' }
+        });
+
+        // Oggetto temporaneo per l'azienda corrente in modifica/inserimento sul form primario
+        let currentDetailsBuffer = {
+            invio1: defaultInvioDetails(),
+            invio2: defaultInvioDetails(),
+            invio3: defaultInvioDetails()
+        };
+
+        window.onload = function() {
+            renderTable();
+        };
+
+        function renderTable() {
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+            
+            elencoCandidature.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.azienda}</strong><br><small>${item.indirizzo || ''}</small></td>
+                    <td>${item.comune}</td>
+                    <td>${item.telefono || '-'}</td>
+                    <td>${item.data1 ? formatDate(item.data1) : '-'} ${item.invio1?.stato ? `<br><small>(${item.invio1.stato})</small>` : ''}</td>
+                    <td>${item.data2 ? formatDate(item.data2) : '-'} ${item.invio2?.stato ? `<br><small>(${item.invio2.stato})</small>` : ''}</td>
+                    <td>${item.data3 ? formatDate(item.data3) : '-'} ${item.invio3?.stato ? `<br><small>(${item.invio3.stato})</small>` : ''}</td>
+                    <td>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadElementForEdit(${index})">Modifica</button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteElement(${index})">Elimina</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveData(e) {
+            e.preventDefault();
+            const index = document.getElementById('edit-index').value;
+            
+            const aziendaData = {
+                azienda: document.getElementById('azienda').value,
+                indirizzo: document.getElementById('indirizzo').value,
+                comune: document.getElementById('comune').value,
+                telefono: document.getElementById('telefono').value,
+                data1: document.getElementById('data1').value,
+                data2: document.getElementById('data2').value,
+                data3: document.getElementById('data3').value,
+                invio1: currentDetailsBuffer.invio1,
+                invio2: currentDetailsBuffer.invio2,
+                invio3: currentDetailsBuffer.invio3
+            };
+
+            if (index === "") {
+                elencoCandidature.push(aziendaData);
+            } else {
+                elencoCandidature[index] = aziendaData;
+            }
+
+            localStorage.setItem('track_autocandidature', JSON.stringify(elencoCandidature));
+            resetMainForm();
+            renderTable();
+        }
+
+        function loadElementForEdit(index) {
+            const item = elencoCandidature[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('azienda').value = item.azienda;
+            document.getElementById('indirizzo').value = item.indirizzo || '';
+            document.getElementById('comune').value = item.comune;
+            document.getElementById('telefono').value = item.telefono || '';
+            document.getElementById('data1').value = item.data1 || '';
+            document.getElementById('data2').value = item.data2 || '';
+            document.getElementById('data3').value = item.data3 || '';
+            
+            currentDetailsBuffer.invio1 = item.invio1 || defaultInvioDetails();
+            currentDetailsBuffer.invio2 = item.invio2 || defaultInvioDetails();
+            currentDetailsBuffer.invio3 = item.invio3 || defaultInvioDetails();
+            
+            document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteElement(index) {
+            if(confirm("Sei sicura di voler eliminare questa azienda e tutti i suoi invii correlati?")) {
+                elencoCandidature.splice(index, 1);
+                localStorage.setItem('track_autocandidature', JSON.stringify(elencoCandidature));
+                renderTable();
+            }
+        }
+
+        function openDetails(num) {
+            document.getElementById('current-details-num').value = num;
+            document.getElementById('modal-title').innerText = `Dettagli Relativi al ${num}° Invio`;
+            
+            const detailsObj = currentDetailsBuffer[`invio${num}`];
+            
+            // Popola campi modale
+            document.getElementById('det-contatto').value = detailsObj.contatto || '';
+            document.getElementById('det-modalita').value = detailsObj.modalita || '';
+            document.getElementById('det-lettera').value = detailsObj.lettera || '';
+            document.getElementById('det-stato').value = detailsObj.stato || '';
+            document.getElementById('det-data-stato').value = detailsObj.dataStato || '';
+            
+            // Popola sottosezione colloquio
+            const coll = detailsObj.colloquio || defaultInvioDetails().colloquio;
+            document.getElementById('coll-tipo').value = coll.tipo || 'telefonico';
+            document.getElementById('coll-data').value = coll.data || '';
+            document.getElementById('coll-ora').value = coll.ora || '';
+            document.getElementById('coll-indirizzo').value = coll.indirizzo || '';
+            document.getElementById('coll-nominativo').value = coll.nominativo || '';
+            document.getElementById('coll-tel').value = coll.tel || '';
+            document.getElementById('coll-mail').value = coll.mail || '';
+
+            toggleColloquioSection();
+            document.getElementById('details-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('details-modal').style.display = 'none';
+        }
+
+        function toggleColloquioSection() {
+            const stato = document.getElementById('det-stato').value;
+            const collSection = document.getElementById('colloquio-section');
+            if (stato === "Riscontro positivo") {
+                collSection.classList.remove('hidden');
+            } else {
+                collSection.classList.add('hidden');
+            }
+        }
+
+        function saveDetailsContexual() {
+            const num = document.getElementById('current-details-num').value;
+            
+            currentDetailsBuffer[`invio${num}`] = {
+                contatto: document.getElementById('det-contatto').value,
+                modalita: document.getElementById('det-modalita').value,
+                lettera: document.getElementById('det-lettera').value,
+                stato: document.getElementById('det-stato').value,
+                dataStato: document.getElementById('det-data-stato').value,
+                colloquio: {
+                    tipo: document.getElementById('coll-tipo').value,
+                    data: document.getElementById('coll-data').value,
+                    ora: document.getElementById('coll-ora').value,
+                    indirizzo: document.getElementById('coll-indirizzo').value,
+                    nominativo: document.getElementById('coll-nominativo').value,
+                    tel: document.getElementById('coll-tel').value,
+                    mail: document.getElementById('coll-mail').value
+                }
+            };
+            closeModal();
+            alert(`Dettagli salvati temporaneamente per il ${num}° Invio. Ricorda di salvare la scheda azienda per renderli definitivi.`);
+        }
+
+        function resetMainForm() {
+            document.getElementById('app-form').reset();
+            document.getElementById('edit-index').value = "";
+            currentDetailsBuffer = {
+                invio1: defaultInvioDetails(),
+                invio2: defaultInvioDetails(),
+                invio3: defaultInvioDetails()
+            };
+        }
+
+        function formatDate(dateStr) {
+            if(!dateStr) return '';
+            const d = dateStr.split('-');
+            return `${d[2]}/${d[1]}/${d[0]}`;
+        }
+
+        function switchTab(tabId) {
+            // Predisposto per gestire le tab future
+            console.log("Navigazione verso: " + tabId);
+        }
+    </script>
+</body>
+</html>
