@@ -12,6 +12,7 @@
             --card-bg: #ffffff;
             --text-color: #333333;
             --border-color: #dddddd;
+            --ins-color: #e06666;
         }
 
         * {
@@ -74,7 +75,7 @@
             font-weight: 600;
         }
 
-        input[type="text"], input[type="date"], input[type="time"], input[type="tel"], input[type="email"], select, textarea {
+        input[type="text"], input[type="date"], input[type="time"], input[type="tel"], input[type="email"], input[type="number"], select, textarea {
             width: 100%;
             padding: 8px 12px;
             border: 1px solid var(--border-color);
@@ -104,10 +105,29 @@
             border-left: 4px solid var(--primary-color);
         }
 
+        .grid-3.inserzioni-bar {
+            border-left: 4px solid var(--ins-color);
+        }
+
         .date-input-group {
             display: flex;
             gap: 5px;
             align-items: flex-end;
+        }
+
+        .currency-input {
+            position: relative;
+        }
+        .currency-input input {
+            padding-left: 25px;
+        }
+        .currency-input::before {
+            content: "€";
+            position: absolute;
+            left: 10px;
+            top: 8px;
+            font-size: 14px;
+            color: #555;
         }
 
         button {
@@ -124,10 +144,8 @@
         .btn-accent { background-color: var(--accent-color); color: white; margin-top: 15px; }
         .btn-accent:hover { background-color: #008200; }
         .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; }
-        .btn-details:hover { background-color: #5a6268; }
         .btn-close { background-color: #dc3545; color: white; }
 
-        /* Tabella Dati */
         .table-responsive {
             overflow-x: auto;
             margin-top: 25px;
@@ -152,7 +170,6 @@
 
         tr:hover { background-color: #f8f9fa; }
 
-        /* Modale Dettagli */
         .modal {
             display: none;
             position: fixed;
@@ -183,7 +200,6 @@
             padding-bottom: 10px;
         }
 
-        /* Sezione Colloqui */
         .section-colloqui {
             background: #f0f7ff;
             padding: 15px;
@@ -228,16 +244,16 @@
     </header>
 
     <nav>
-        <button class="nav-btn active">Autocandidature</button>
-        <button class="nav-btn" onclick="alert('Sezione Inserzioni: Configurazione futura')">Risposta Inserzioni</button>
+        <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">Autocandidature</button>
+        <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">Risposta Inserzioni</button>
         <button class="nav-btn" onclick="alert('Sezione Ricerca: Configurazione futura')">Ricerca Avanzata</button>
         <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
     </nav>
 
     <div id="autocandidature-tab" class="container">
         <h2>Nuova Autocandidatura</h2>
-        <form id="app-form" onsubmit="saveData(event)">
-            <input type="hidden" id="edit-index" value="">
+        <form id="app-form" onsubmit="saveDataAuto(event)">
+            <input type="hidden" id="edit-index-auto" value="">
             
             <div class="grid-4">
                 <div class="form-group">
@@ -263,21 +279,21 @@
                     <label>Data 1° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data1">
-                        <button type="button" class="btn-details" onclick="openDetails(1)">DETTAGLI RELATIVI AL 1° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(1)">DETTAGLI RELATIVI AL 1° INVIO</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 2° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data2">
-                        <button type="button" class="btn-details" onclick="openDetails(2)">DETTAGLI RELATIVI AL 2° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(2)">DETTAGLI RELATIVI AL 2° INVIO</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 3° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data3">
-                        <button type="button" class="btn-details" onclick="openDetails(3)">DETTAGLI RELATIVI AL 3° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(3)">DETTAGLI RELATIVI AL 3° INVIO</button>
                     </div>
                 </div>
             </div>
@@ -299,7 +315,166 @@
                         <th>Azioni</th>
                     </tr>
                 </thead>
-                <tbody id="data-table-body"></tbody>
+                <tbody id="data-table-body-auto"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="inserzioni-tab" class="container hidden">
+        <h2>Nuova Risposta a Inserzione</h2>
+        <form id="ins-form" onsubmit="saveDataIns(event)">
+            <input type="hidden" id="edit-index-ins" value="">
+
+            <div class="grid-4">
+                <div class="form-group">
+                    <label>Data risposta inserzione *</label>
+                    <input type="date" id="ins-data-risposta" required>
+                </div>
+                <div class="form-group">
+                    <label>Agenzia per il Lavoro / Portale *</label>
+                    <select id="ins-portale" required>
+                        <option value="">-- Seleziona --</option>
+                        <option value="Adecco">Adecco</option>
+                        <option value="ADHR">ADHR</option>
+                        <option value="Afol Metropolitana">Afol Metropolitana</option>
+                        <option value="Bakeca">Bakeca</option>
+                        <option value="BSH">BSH</option>
+                        <option value="Indeed">Indeed</option>
+                        <option value="InMatch">InMatch</option>
+                        <option value="Job Rapido">Job Rapido</option>
+                        <option value="JobToMe">JobToMe</option>
+                        <option value="Jobeka">Jobeka</option>
+                        <option value="Kinkedin">Kinkedin</option>
+                        <option value="ManPower">ManPower</option>
+                        <option value="Milanogi">Milanogi</option>
+                        <option value="NetToWork">NetToWork</option>
+                        <option value="Orienta">Orienta</option>
+                        <option value="Profili&Carriere">Profili&Carriere</option>
+                        <option value="Talent">Talent</option>
+                        <option value="TrovoLavoro">TrovoLavoro</option>
+                        <option value="Umana">Umana</option>
+                        <option value="Altro">Altro ...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Azienda richiedente</label>
+                    <input type="text" id="ins-azienda-richiedente">
+                </div>
+                <div class="form-group">
+                    <label>Titolo della Posizione *</label>
+                    <input type="text" id="ins-posizione" required>
+                </div>
+            </div>
+
+            <div class="grid-4">
+                <div class="form-group">
+                    <label>Data di invio</label>
+                    <input type="date" id="ins-data-invio">
+                </div>
+                <div class="form-group">
+                    <label>Retribuzione Minima (€)</label>
+                    <div class="currency-input"><input type="number" id="ins-ret-min" min="0"></div>
+                </div>
+                <div class="form-group">
+                    <label>Retribuzione Massima (€)</label>
+                    <div class="currency-input"><input type="number" id="ins-ret-max" min="0"></div>
+                </div>
+                <div class="form-group">
+                    <label>Tempo di lavoro</label>
+                    <select id="ins-tempo-lavoro">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Full Time">Full Time</option>
+                        <option value="Part Time">Part Time</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-3 inserzioni-bar">
+                <div class="form-group">
+                    <label>Tipologia di contratto</label>
+                    <select id="ins-tipo-contratto" onchange="toggleDeterminatoSubOption()">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Tempo determinato">Tempo determinato</option>
+                        <option value="Tempo indeterminato">Tempo indeterminato</option>
+                        <option value="Contratto somministrazione">Contratto somministrazione</option>
+                    </select>
+                </div>
+                <div class="form-group hidden" id="sub-contratto-det-group">
+                    <label>Specifiche Tempo Determinato</label>
+                    <select id="ins-sub-contratto">
+                        <option value="">-- Seleziona specifica --</option>
+                        <option value="Sostituzione">Sostituzione</option>
+                        <option value="Scopo assunzione tempo indeterminato">Scopo assunzione tempo indeterminato</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sede di lavoro</label>
+                    <select id="ins-sede">
+                        <option value="">-- Seleziona --</option>
+                        <option value="In Sede">In Sede</option>
+                        <option value="Smart Working">Smart Working</option>
+                        <option value="Ibrido">Ibrido</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Testo dell'inserzione</label>
+                <textarea id="ins-testo-annuncio" placeholder="Incolla qui l'intero annuncio di lavoro..."></textarea>
+            </div>
+
+            <div class="grid-3 inserzioni-bar">
+                <div class="form-group">
+                    <label>Stato Candidatura</label>
+                    <select id="ins-stato" onchange="toggleInsModalColloquiSection()">
+                        <option value="">-- Seleziona Stato --</option>
+                        <option value="Conferma ricevimento candidatura">Conferma ricevimento candidatura</option>
+                        <option value="Riscontro positivo">Riscontro positivo</option>
+                        <option value="Riscontro negativo">Riscontro negativo</option>
+                        <option value="Archiviata">Archiviata</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data dell'evento Stato</label>
+                    <input type="date" id="ins-data-stato">
+                </div>
+            </div>
+
+            <div id="ins-section-colloqui" class="section-colloqui hidden">
+                <h4>Sezione Colloqui (Riscontro Positivo)</h4>
+                <p style="font-size: 12px; color: #555; margin-bottom:10px;">Imposta una data sul colloquio specifico per sbloccare i suoi dettagli.</p>
+                <div class="colloqui-tabs">
+                    <button type="button" class="coll-tab-btn active" id="btn-ins-c1" onclick="switchInsCollTab(1)">1° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" id="btn-ins-c2" onclick="switchInsCollTab(2)">2° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" id="btn-ins-c3" onclick="switchInsCollTab(3)">3° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" id="btn-ins-c4" onclick="switchInsCollTab(4)">4° Colloquio</button>
+                </div>
+                <div id="ins-panel-coll-container"></div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Note personali</label>
+                <textarea id="ins-note" placeholder="Inserisci qui valutazioni, feedback o promemoria liberi..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-accent" style="background-color: var(--ins-color);">Salva Scheda Inserzione</button>
+        </form>
+
+        <div class="table-responsive">
+            <h3>Registro Risposte Inserzioni</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Posizione / Azienda</th>
+                        <th>Agenzia / Portale</th>
+                        <th>Data Risposta</th>
+                        <th>Contratto</th>
+                        <th>Sede</th>
+                        <th>Stato</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body-ins"></tbody>
             </table>
         </div>
     </div>
@@ -310,153 +485,175 @@
                 <h3 id="modal-title">Dettagli Invio</h3>
                 <button type="button" class="btn-close" onclick="closeModal()">X</button>
             </div>
-            
             <input type="hidden" id="current-details-num" value="">
-
             <div class="form-group">
                 <label>Contatto di riferimento (Mail / Nominativo)</label>
-                <input type="text" id="det-contatto" placeholder="Es. Rossi Mario o info@azienda.it">
+                <input type="text" id="det-contatto">
             </div>
-
             <div class="form-group">
                 <label>Modalità di consegna alternativa</label>
                 <select id="det-modalita">
-                    <option value="">-- Seleziona (Opzionale) --</option>
+                    <option value="">-- Seleziona --</option>
                     <option value="CONSEGNATA A MANO">CONSEGNATA A MANO</option>
                     <option value="PORTALE AZIENDALE">PORTALE AZIENDALE</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Lettera di accompagnamento</label>
-                <textarea id="det-lettera" placeholder="Inserisci qui il testo del messaggio inviato..."></textarea>
+                <textarea id="det-lettera"></textarea>
             </div>
-
             <div class="form-group">
                 <label>Stato Invio</label>
-                <select id="det-stato" onchange="toggleInterviewsSection()">
+                <select id="det-stato" onchange="toggleAutoInterviewsSection()">
                     <option value="">-- Seleziona Stato --</option>
                     <option value="Riscontro positivo">Riscontro positivo</option>
                     <option value="Riscontro negativo">Riscontro negativo</option>
                     <option value="Archiviata">Archiviata</option>
                 </select>
             </div>
-
             <div class="form-group">
-                <label>Data dell'evento Stato (Riscontro / Archivio)</label>
+                <label>Data dell'evento Stato</label>
                 <input type="date" id="det-data-stato">
             </div>
-
             <div id="section-colloqui" class="section-colloqui hidden">
                 <h4>Sezione Colloqui</h4>
-                <p style="font-size: 12px; color: #555;">Compila la data di un colloquio per attivare i relativi dettagli.</p>
-                
                 <div class="colloqui-tabs">
-                    <button type="button" class="coll-tab-btn active" onclick="switchCollTab(1)">1° Colloquio</button>
-                    <button type="button" class="coll-tab-btn" onclick="switchCollTab(2)">2° Colloquio</button>
-                    <button type="button" class="coll-tab-btn" onclick="switchCollTab(3)">3° Colloquio</button>
-                    <button type="button" class="coll-tab-btn" onclick="switchCollTab(4)">4° Colloquio</button>
+                    <button type="button" class="coll-tab-btn active" onclick="switchAutoCollTab(1)">1° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" onclick="switchAutoCollTab(2)">2° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" onclick="switchAutoCollTab(3)">3° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" onclick="switchAutoCollTab(4)">4° Colloquio</button>
                 </div>
-
                 <div id="panel-coll-container"></div>
             </div>
-
-            <button type="button" class="btn-primary" style="margin-top:25px; width:100%;" onclick="saveDetailsContextual()">Conferma e Salva Dettagli Invio</button>
+            <button type="button" class="btn-primary" style="margin-top:25px; width:100%;" onclick="saveDetailsContextualAuto()">Conferma e Salva Dettagli Invio</button>
         </div>
     </div>
 
     <script>
-        let elencoCandidature = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
+        // DATA STORAGE LINGUAGGIO NATURALE BROWSER
+        let elencoAuto = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
+        let elencoIns = JSON.parse(localStorage.getItem('track_inserzioni')) || [];
         
-        const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '' });
-
+        const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '', esito: 'In fase di valutazione' });
         const defaultInvioDetails = () => ({
             contatto: '', modalita: '', lettera: '', stato: '', dataStato: '',
             colloqui: [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()]
         });
 
-        let currentDetailsBuffer = {
-            invio1: defaultInvioDetails(),
-            invio2: defaultInvioDetails(),
-            invio3: defaultInvioDetails()
-        };
+        let currentDetailsBufferAuto = { invio1: defaultInvioDetails(), invio2: defaultInvioDetails(), invio3: defaultInvioDetails() };
+        let currentInsColloquiBuffer = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
 
         window.onload = function() {
-            renderTable();
-            buildColloquiPanelsHTML();
+            renderTableAuto();
+            renderTableIns();
+            buildColloquiPanelsHTMLAuto();
+            buildColloquiPanelsHTMLIns();
         };
 
-        function buildColloquiPanelsHTML() {
+        function switchMainTab(target) {
+            document.getElementById('autocandidature-tab').classList.add('hidden');
+            document.getElementById('inserzioni-tab').classList.add('hidden');
+            document.getElementById('tab-auto-btn').classList.remove('active');
+            document.getElementById('tab-ins-btn').classList.remove('active');
+
+            if(target === 'autocandidature') {
+                document.getElementById('autocandidature-tab').classList.remove('hidden');
+                document.getElementById('tab-auto-btn').classList.add('active');
+            } else if(target === 'inserzioni') {
+                document.getElementById('inserzioni-tab').classList.remove('hidden');
+                document.getElementById('tab-ins-btn').classList.add('active');
+            }
+        }
+
+        // ==========================================
+        // LOGICA GENERAZIONE SOTTO-PANNELLI INTERNI
+        // ==========================================
+        function buildColloquiPanelsHTMLAuto() {
             const container = document.getElementById('panel-coll-container');
             container.innerHTML = '';
             for (let i = 1; i <= 4; i++) {
-                const div = document.createElement('div');
-                div.id = `panel-coll-${i}`;
-                div.className = `panel-coll ${i > 1 ? 'hidden' : ''}`;
-                div.innerHTML = `
-                    <div class="form-group">
-                        <label>Data ${i}° Colloquio</label>
-                        <input type="date" id="coll-data-${i}" onchange="toggleCollFields(${i})">
-                    </div>
-                    <div id="fields-coll-${i}" class="hidden" style="margin-top:10px;">
-                        <div class="grid-4">
-                            <div class="form-group">
-                                <label>Tipo colloquio</label>
-                                <select id="coll-tipo-${i}">
-                                    <option value="telefonico">Telefonico</option>
-                                    <option value="on line">On-line</option>
-                                    <option value="di persona">Di persona</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Ora</label>
-                                <input type="time" id="coll-ora-${i}">
-                            </div>
-                            <div class="form-group">
-                                <label>Indirizzo (se di persona)</label>
-                                <input type="text" id="coll-indirizzo-${i}">
-                            </div>
-                            <div class="form-group">
-                                <label>Persona da incontrare</label>
-                                <input type="text" id="coll-nominativo-${i}">
-                            </div>
-                        </div>
-                        <div class="grid-4">
-                            <div class="form-group">
-                                <label>Telefono referente</label>
-                                <input type="tel" id="coll-tel-${i}">
-                            </div>
-                            <div class="form-group">
-                                <label>Mail referente</label>
-                                <input type="email" id="coll-mail-${i}">
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
+                container.appendChild(createSingleCollPanelHTML('auto', i));
             }
         }
 
-        /* Forza rinfresco visivo campi colloquio all'apertura */
-        function checkAllCollFieldsVisibility() {
-            for(let i = 1; i <= 4; i++) {
-                toggleCollFields(i);
+        function buildColloquiPanelsHTMLIns() {
+            const container = document.getElementById('ins-panel-coll-container');
+            container.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                container.appendChild(createSingleCollPanelHTML('ins', i));
             }
         }
 
-        function toggleCollFields(i) {
-            const inputData = document.getElementById(`coll-data-${i}`);
-            if(!inputData) return;
-            const dataVal = inputData.value;
-            const fieldsDiv = document.getElementById(`fields-coll-${i}`);
-            if(dataVal) { fieldsDiv.classList.remove('hidden'); } 
-            else { fieldsDiv.classList.add('hidden'); }
+        function createSingleCollPanelHTML(prefix, i) {
+            const div = document.createElement('div');
+            div.id = `panel-${prefix}-coll-${i}`;
+            div.className = `panel-coll ${i > 1 ? 'hidden' : ''}`;
+            div.innerHTML = `
+                <div class="form-group">
+                    <label>Data ${i}° Colloquio</label>
+                    <input type="date" id="${prefix}-coll-data-${i}" onchange="toggleCollFieldsGeneric('${prefix}', ${i})">
+                </div>
+                <div id="fields-${prefix}-coll-${i}" class="hidden" style="margin-top:10px;">
+                    <div class="grid-4">
+                        <div class="form-group">
+                            <label>Tipo colloquio</label>
+                            <select id="${prefix}-coll-tipo-${i}">
+                                <option value="telefonico">Telefonico</option>
+                                <option value="on line">On-line</option>
+                                <option value="di persona">Di persona</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ora</label>
+                            <input type="time" id="${prefix}-coll-ora-${i}">
+                        </div>
+                        <div class="form-group">
+                            <label>Indirizzo (se di persona)</label>
+                            <input type="text" id="${prefix}-coll-indirizzo-${i}">
+                        </div>
+                        <div class="form-group">
+                            <label>Persona da incontrare</label>
+                            <input type="text" id="${prefix}-coll-nominativo-${i}">
+                        </div>
+                    </div>
+                    <div class="grid-4">
+                        <div class="form-group">
+                            <label>Telefono referente</label>
+                            <input type="tel" id="${prefix}-coll-tel-${i}">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail referente</label>
+                            <input type="email" id="${prefix}-coll-mail-${i}">
+                        </div>
+                        <div class="form-group">
+                            <label>Risultato del colloquio</label>
+                            <select id="${prefix}-coll-esito-${i}">
+                                <option value="In fase di valutazione">In fase di valutazione</option>
+                                <option value="Esito positivo (passaggio allo step successivo)">Esito positivo (passaggio allo step successivo)</option>
+                                <option value="Esito positivo definitivo (conferma per il ruolo)">Esito positivo definitivo (conferma per il ruolo)</option>
+                                <option value="Esito negativo">Esito negativo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return div;
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('data-table-body');
+        function toggleCollFieldsGeneric(prefix, i) {
+            const val = document.getElementById(`${prefix}-coll-data-${i}`).value;
+            const target = document.getElementById(`fields-${prefix}-coll-${i}`);
+            if(val) target.classList.remove('hidden');
+            else target.classList.add('hidden');
+        }
+
+        // ==========================================
+        // PARTE 1: SCRIPT GESTIONE AUTOCANDIDATURE
+        // ==========================================
+        function renderTableAuto() {
+            const tbody = document.getElementById('data-table-body-auto');
             tbody.innerHTML = '';
-            elencoCandidature.forEach((item, index) => {
+            elencoAuto.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${item.azienda}</strong><br><small>${item.indirizzo || ''}</small></td>
@@ -466,18 +663,18 @@
                     <td>${item.data2 ? formatDate(item.data2) : '-'} ${item.invio2?.stato ? `<br><small>(${item.invio2.stato})</small>` : ''}</td>
                     <td>${item.data3 ? formatDate(item.data3) : '-'} ${item.invio3?.stato ? `<br><small>(${item.invio3.stato})</small>` : ''}</td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadElementForEdit(${index})">Modifica</button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteElement(${index})">Elimina</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadEditAuto(${index})">Modifica</button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteAuto(${index})">Elimina</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function saveData(e) {
+        function saveDataAuto(e) {
             e.preventDefault();
-            const index = document.getElementById('edit-index').value;
-            const aziendaData = {
+            const index = document.getElementById('edit-index-auto').value;
+            const data = {
                 azienda: document.getElementById('azienda').value,
                 indirizzo: document.getElementById('indirizzo').value,
                 comune: document.getElementById('comune').value,
@@ -485,20 +682,20 @@
                 data1: document.getElementById('data1').value,
                 data2: document.getElementById('data2').value,
                 data3: document.getElementById('data3').value,
-                invio1: currentDetailsBuffer.invio1,
-                invio2: currentDetailsBuffer.invio2,
-                invio3: currentDetailsBuffer.invio3
+                invio1: currentDetailsBufferAuto.invio1,
+                invio2: currentDetailsBufferAuto.invio2,
+                invio3: currentDetailsBufferAuto.invio3
             };
-            if (index === "") { elencoCandidature.push(aziendaData); } 
-            else { elencoCandidature[index] = aziendaData; }
-            localStorage.setItem('track_autocandidature', JSON.stringify(elencoCandidature));
-            resetMainForm();
-            renderTable();
+            if(index === "") elencoAuto.push(data);
+            else elencoAuto[index] = data;
+            localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
+            resetFormAuto();
+            renderTableAuto();
         }
 
-        function loadElementForEdit(index) {
-            const item = elencoCandidature[index];
-            document.getElementById('edit-index').value = index;
+        function loadEditAuto(index) {
+            const item = elencoAuto[index];
+            document.getElementById('edit-index-auto').value = index;
             document.getElementById('azienda').value = item.azienda;
             document.getElementById('indirizzo').value = item.indirizzo || '';
             document.getElementById('comune').value = item.comune;
@@ -506,105 +703,249 @@
             document.getElementById('data1').value = item.data1 || '';
             document.getElementById('data2').value = item.data2 || '';
             document.getElementById('data3').value = item.data3 || '';
-            currentDetailsBuffer.invio1 = item.invio1 || defaultInvioDetails();
-            currentDetailsBuffer.invio2 = item.invio2 || defaultInvioDetails();
-            currentDetailsBuffer.invio3 = item.invio3 || defaultInvioDetails();
+            currentDetailsBufferAuto.invio1 = item.invio1 || defaultInvioDetails();
+            currentDetailsBufferAuto.invio2 = item.invio2 || defaultInvioDetails();
+            currentDetailsBufferAuto.invio3 = item.invio3 || defaultInvioDetails();
             document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function deleteElement(index) {
-            if(confirm("Sei sicura di voler eliminare questa azienda?")) {
-                elencoCandidature.splice(index, 1);
-                localStorage.setItem('track_autocandidature', JSON.stringify(elencoCandidature));
-                renderTable();
+        function deleteAuto(index) {
+            if(confirm("Eliminare questa scheda autocandidatura?")) {
+                elencoAuto.splice(index, 1);
+                localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
+                renderTableAuto();
             }
         }
 
-        function openDetails(num) {
+        function openDetailsAuto(num) {
             document.getElementById('current-details-num').value = num;
             document.getElementById('modal-title').innerText = `Dettagli Relativi al ${num}° Invio`;
-            const detailsObj = currentDetailsBuffer[`invio${num}`] || defaultInvioDetails();
+            const obj = currentDetailsBufferAuto[`invio${num}`] || defaultInvioDetails();
             
-            document.getElementById('det-contatto').value = detailsObj.contatto || '';
-            document.getElementById('det-modalita').value = detailsObj.modalita || '';
-            document.getElementById('det-lettera').value = detailsObj.lettera || '';
-            document.getElementById('det-stato').value = detailsObj.stato || '';
-            document.getElementById('det-data-stato').value = detailsObj.dataStato || '';
+            document.getElementById('det-contatto').value = obj.contatto || '';
+            document.getElementById('det-modalita').value = obj.modalita || '';
+            document.getElementById('det-lettera').value = obj.lettera || '';
+            document.getElementById('det-stato').value = obj.stato || '';
+            document.getElementById('det-data-stato').value = obj.dataStato || '';
             
-            if(!detailsObj.colloqui) detailsObj.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
+            if(!obj.colloqui) obj.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
             for(let i = 1; i <= 4; i++) {
-                const c = detailsObj.colloqui[i-1] || defaultColloquio();
-                document.getElementById(`coll-data-${i}`).value = c.data || '';
-                document.getElementById(`coll-tipo-${i}`).value = c.tipo || 'telefonico';
-                document.getElementById(`coll-ora-${i}`).value = c.ora || '';
-                document.getElementById(`coll-indirizzo-${i}`).value = c.indirizzo || '';
-                document.getElementById(`coll-nominativo-${i}`).value = c.nominativo || '';
-                document.getElementById(`coll-tel-${i}`).value = c.tel || '';
-                document.getElementById(`coll-mail-${i}`).value = c.mail || '';
+                const c = obj.colloqui[i-1] || defaultColloquio();
+                document.getElementById(`auto-coll-data-${i}`).value = c.data || '';
+                document.getElementById(`auto-coll-tipo-${i}`).value = c.tipo || 'telefonico';
+                document.getElementById(`auto-coll-ora-${i}`).value = c.ora || '';
+                document.getElementById(`auto-coll-indirizzo-${i}`).value = c.indirizzo || '';
+                document.getElementById(`auto-coll-nominativo-${i}`).value = c.nominativo || '';
+                document.getElementById(`auto-coll-tel-${i}`).value = c.tel || '';
+                document.getElementById(`auto-coll-mail-${i}`).value = c.mail || '';
+                document.getElementById(`auto-coll-esito-${i}`).value = c.esito || 'In fase di valutazione';
+                toggleCollFieldsGeneric('auto', i);
             }
-
-            switchCollTab(1);
-            toggleInterviewsSection();
-            checkAllCollFieldsVisibility();
+            switchAutoCollTab(1);
+            toggleAutoInterviewsSection();
             document.getElementById('details-modal').style.display = 'flex';
         }
 
-        function toggleInterviewsSection() {
-            const stato = document.getElementById('det-stato').value;
-            const section = document.getElementById('section-colloqui');
-            if(stato === "Riscontro positivo") { section.classList.remove('hidden'); } 
-            else { section.classList.add('hidden'); }
+        function toggleAutoInterviewsSection() {
+            const s = document.getElementById('det-stato').value;
+            const sec = document.getElementById('section-colloqui');
+            if(s === "Riscontro positivo") sec.classList.remove('hidden');
+            else sec.classList.add('hidden');
         }
 
-        function switchCollTab(activeNum) {
-            const buttons = document.querySelectorAll('.coll-tab-btn');
-            buttons.forEach((btn, idx) => {
-                if((idx + 1) === activeNum) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-            for(let i = 1; i <= 4; i++) {
-                const panel = document.getElementById(`panel-coll-${i}`);
-                if(i === activeNum) panel.classList.remove('hidden');
-                else panel.className = 'panel-coll hidden';
+        function switchAutoCollTab(n) {
+            const btns = document.querySelectorAll('#section-colloqui .coll-tab-btn');
+            btns.forEach((b, idx) => { if((idx+1)===n) b.classList.add('active'); else b.classList.remove('active'); });
+            for(let i=1; i<=4; i++) {
+                const p = document.getElementById(`panel-auto-coll-${i}`);
+                if(i===n) p.classList.remove('hidden'); else p.className = 'panel-coll hidden';
             }
         }
 
-        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
-
-        function saveDetailsContextual() {
+        function saveDetailsContextualAuto() {
             const num = document.getElementById('current-details-num').value;
-            const colloquiSalvati = [];
-            
-            for(let i = 1; i <= 4; i++) {
-                colloquiSalvati.push({
-                    data: document.getElementById(`coll-data-${i}`).value,
-                    tipo: document.getElementById(`coll-tipo-${i}`).value,
-                    ora: document.getElementById(`coll-ora-${i}`).value,
-                    indirizzo: document.getElementById(`coll-indirizzo-${i}`).value,
-                    nominativo: document.getElementById(`coll-nominativo-${i}`).value,
-                    tel: document.getElementById(`coll-tel-${i}`).value,
-                    mail: document.getElementById(`coll-mail-${i}`).value
+            const colls = [];
+            for(let i=1; i<=4; i++) {
+                colls.push({
+                    data: document.getElementById(`auto-coll-data-${i}`).value,
+                    tipo: document.getElementById(`auto-coll-tipo-${i}`).value,
+                    ora: document.getElementById(`auto-coll-ora-${i}`).value,
+                    indirizzo: document.getElementById(`auto-coll-indirizzo-${i}`).value,
+                    nominativo: document.getElementById(`auto-coll-nominativo-${i}`).value,
+                    tel: document.getElementById(`auto-coll-tel-${i}`).value,
+                    mail: document.getElementById(`auto-coll-mail-${i}`).value,
+                    esito: document.getElementById(`auto-coll-esito-${i}`).value
                 });
             }
-
-            currentDetailsBuffer[`invio${num}`] = {
+            currentDetailsBufferAuto[`invio${num}`] = {
                 contatto: document.getElementById('det-contatto').value,
                 modalita: document.getElementById('det-modalita').value,
                 lettera: document.getElementById('det-lettera').value,
                 stato: document.getElementById('det-stato').value,
                 dataStato: document.getElementById('det-data-stato').value,
-                colloqui: colloquiSalvati
+                colloqui: colls
             };
             closeModal();
-            alert(`Dettagli e colloqui salvati in memoria per il ${num}° Invio. Ricorda di salvare la scheda azienda principale.`);
+            alert(`Dettagli salvati provvisoriamente. Premi "Salva Scheda Azienda" per confermare.`);
         }
 
-        function resetMainForm() {
+        function resetFormAuto() {
             document.getElementById('app-form').reset();
-            document.getElementById('edit-index').value = "";
-            currentDetailsBuffer = { invio1: defaultInvioDetails(), invio2: defaultInvioDetails(), invio3: defaultInvioDetails() };
+            document.getElementById('edit-index-auto').value = "";
+            currentDetailsBufferAuto = { invio1: defaultInvioDetails(), invio2: defaultInvioDetails(), invio3: defaultInvioDetails() };
         }
 
+
+        // ==========================================
+        // PARTE 2: SCRIPT GESTIONE RISPOSTA INSERZIONI
+        // ==========================================
+        function toggleDeterminatoSubOption() {
+            const val = document.getElementById('ins-tipo-contratto').value;
+            const group = document.getElementById('sub-contratto-det-group');
+            if(val === "Tempo determinato") group.classList.remove('hidden');
+            else { group.classList.add('hidden'); document.getElementById('ins-sub-contratto').value = ""; }
+        }
+
+        function toggleInsModalColloquiSection() {
+            const val = document.getElementById('ins-stato').value;
+            const section = document.getElementById('ins-section-colloqui');
+            if(val === "Riscontro positivo") section.classList.remove('hidden');
+            else section.classList.add('hidden');
+        }
+
+        function switchInsCollTab(n) {
+            for(let i=1; i<=4; i++) {
+                const btn = document.getElementById(`btn-ins-c${i}`);
+                const panel = document.getElementById(`panel-ins-coll-${i}`);
+                if(i === n) { btn.classList.add('active'); panel.classList.remove('hidden'); }
+                else { btn.classList.remove('active'); panel.className = 'panel-coll hidden'; }
+            }
+        }
+
+        function renderTableIns() {
+            const tbody = document.getElementById('data-table-body-ins');
+            tbody.innerHTML = '';
+            elencoIns.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.posizione}</strong><br><small>${item.aziendaRichiedente || 'Azienda Anonima'}</small></td>
+                    <td>${item.portale}</td>
+                    <td>${formatDate(item.dataRisposta)}</td>
+                    <td>${item.tipoContratto || '-'}${item.subContratto ? ` (${item.subContratto})` : ''}</td>
+                    <td>${item.sede || '-'}</td>
+                    <td><strong>${item.stato || '-'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
+                    <td>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--ins-color);" onclick="loadEditIns(${index})">Modifica</button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteIns(${index})">Elimina</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveDataIns(e) {
+            e.preventDefault();
+            const index = document.getElementById('edit-index-ins').value;
+            
+            // Estrae i colloqui compilati al volo
+            const colloquiIns = [];
+            for(let i=1; i<=4; i++) {
+                colloquiIns.push({
+                    data: document.getElementById(`ins-coll-data-${i}`).value,
+                    tipo: document.getElementById(`ins-coll-tipo-${i}`).value,
+                    ora: document.getElementById(`ins-coll-ora-${i}`).value,
+                    indirizzo: document.getElementById(`ins-coll-indirizzo-${i}`).value,
+                    nominativo: document.getElementById(`ins-coll-nominativo-${i}`).value,
+                    tel: document.getElementById(`ins-coll-tel-${i}`).value,
+                    mail: document.getElementById(`ins-coll-mail-${i}`).value,
+                    esito: document.getElementById(`ins-coll-esito-${i}`).value
+                });
+            }
+
+            const dataObject = {
+                dataRisposta: document.getElementById('ins-data-risposta').value,
+                portale: document.getElementById('ins-portale').value,
+                aziendaRichiedente: document.getElementById('ins-azienda-richiedente').value,
+                posizione: document.getElementById('ins-posizione').value,
+                dataInvio: document.getElementById('ins-data-invio').value,
+                retMin: document.getElementById('ins-ret-min').value,
+                retMax: document.getElementById('ins-ret-max').value,
+                tempoLavoro: document.getElementById('ins-tempo-lavoro').value,
+                tipoContratto: document.getElementById('ins-tipo-contratto').value,
+                subContratto: document.getElementById('ins-sub-contratto').value,
+                sede: document.getElementById('ins-sede').value,
+                testoAnnuncio: document.getElementById('ins-testo-annuncio').value,
+                stato: document.getElementById('ins-stato').value,
+                dataStato: document.getElementById('ins-data-stato').value,
+                note: document.getElementById('ins-note').value,
+                colloqui: colloquiIns
+            };
+
+            if(index === "") elencoIns.push(dataObject);
+            else elencoIns[index] = dataObject;
+
+            localStorage.setItem('track_inserzioni', JSON.stringify(elencoIns));
+            resetFormIns();
+            renderTableIns();
+        }
+
+        function loadEditIns(index) {
+            const item = elencoIns[index];
+            document.getElementById('edit-index-ins').value = index;
+            
+            document.getElementById('ins-data-risposta').value = item.dataRisposta || '';
+            document.getElementById('ins-portale').value = item.portale || '';
+            document.getElementById('ins-azienda-richiedente').value = item.aziendaRichiedente || '';
+            document.getElementById('ins-posizione').value = item.posizione || '';
+            document.getElementById('ins-data-invio').value = item.dataInvio || '';
+            document.getElementById('ins-ret-min').value = item.retMin || '';
+            document.getElementById('ins-ret-max').value = item.retMax || '';
+            document.getElementById('ins-tempo-lavoro').value = item.tempoLavoro || '';
+            document.getElementById('ins-tipo-contratto').value = item.tipoContratto || '';
+            toggleDeterminatoSubOption();
+            document.getElementById('ins-sub-contratto').value = item.subContratto || '';
+            document.getElementById('ins-sede').value = item.sede || '';
+            document.getElementById('ins-testo-annuncio').value = item.testoAnnuncio || '';
+            document.getElementById('ins-stato').value = item.stato || '';
+            document.getElementById('ins-data-stato').value = item.dataStato || '';
+            document.getElementById('ins-note').value = item.note || '';
+
+            if(!item.colloqui) item.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
+            for(let i=1; i<=4; i++) {
+                const c = item.colloqui[i-1] || defaultColloquio();
+                document.getElementById(`ins-coll-data-${i}`).value = c.data || '';
+                document.getElementById(`ins-coll-tipo-${i}`).value = c.tipo || 'telefonico';
+                document.getElementById(`ins-coll-ora-${i}`).value = c.ora || '';
+                document.getElementById(`ins-coll-indirizzo-${i}`).value = c.indirizzo || '';
+                document.getElementById(`ins-coll-nominativo-${i}`).value = c.nominativo || '';
+                document.getElementById(`ins-coll-tel-${i}`).value = c.tel || '';
+                document.getElementById(`ins-coll-mail-${i}`).value = c.mail || '';
+                document.getElementById(`ins-coll-esito-${i}`).value = c.esito || 'In fase di valutazione';
+                toggleCollFieldsGeneric('ins', i);
+            }
+            switchInsCollTab(1);
+            toggleInsModalColloquiSection();
+            document.getElementById('ins-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteIns(index) {
+            if(confirm("Eliminare questa risposta a inserzione?")) {
+                elencoIns.splice(index, 1);
+                localStorage.setItem('track_inserzioni', JSON.stringify(elencoIns));
+                renderTableIns();
+            }
+        }
+
+        function resetFormIns() {
+            document.getElementById('ins-form').reset();
+            document.getElementById('edit-index-ins').value = "";
+            document.getElementById('sub-contratto-det-group').classList.add('hidden');
+            document.getElementById('ins-section-colloqui').classList.add('hidden');
+            for(let i=1; i<=4; i++) { toggleCollFieldsGeneric('ins', i); }
+        }
+
+        // COMUNI UTILITY
+        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         function formatDate(dateStr) {
             if(!dateStr) return '';
             const d = dateStr.split('-');
