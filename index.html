@@ -195,6 +195,27 @@
             min-height: 90px;
         }
 
+        /* Nuove Griglie per Autocandidature per disporre i campi su due righe */
+        .grid-auto-r1 {
+            display: grid;
+            grid-template-columns: 3fr 3fr 2.5fr 1.5fr;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .grid-auto-r2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-auto-r1, .grid-auto-r2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .grid-4 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -240,18 +261,26 @@
             align-items: flex-end;
         }
 
-        .currency-input {
+        .currency-input, .km-input {
             position: relative;
         }
-        .currency-input input {
-            padding-left: 25px;
-        }
+        .currency-input input { padding-left: 25px; }
+        .km-input input { padding-right: 40px; text-align: right; }
+        
         .currency-input::before {
             content: "€";
             position: absolute;
             left: 10px; top: 10px;
             font-size: 14px;
             color: #718096;
+        }
+        .km-input::after {
+            content: "Km";
+            position: absolute;
+            right: 12px; top: 10px;
+            font-size: 14px;
+            color: #718096;
+            font-weight: bold;
         }
 
         button.action-btn {
@@ -425,7 +454,7 @@
         <form id="app-form" onsubmit="saveDataAuto(event)">
             <input type="hidden" id="edit-index-auto" value="">
             
-            <div class="grid-4">
+            <div class="grid-auto-r1">
                 <div class="form-group">
                     <label>Azienda / Ente / Scuola *</label>
                     <input type="text" id="azienda" required>
@@ -439,8 +468,19 @@
                     <input type="text" id="comune" required>
                 </div>
                 <div class="form-group">
-                    <label>Telefono</label>
+                    <label>KM Sede</label>
+                    <div class="km-input"><input type="number" id="km" min="0" step="0.1"></div>
+                </div>
+            </div>
+
+            <div class="grid-auto-r2">
+                <div class="form-group">
+                    <label>Telefono di Riferimento</label>
                     <input type="tel" id="telefono">
+                </div>
+                <div class="form-group">
+                    <label>Settore Merceologico</label>
+                    <input type="text" id="settore" placeholder="Es. Alimentare, Metalmeccanico, Scuola, Servizi...">
                 </div>
             </div>
 
@@ -476,8 +516,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Azienda/Scuola</th>
-                        <th>Comune</th>
+                        <th>Azienda/Scuola (Settore)</th>
+                        <th>Comune (KM)</th>
                         <th>Telefono</th>
                         <th>1° Invio</th>
                         <th>2° Invio</th>
@@ -677,7 +717,7 @@
         </form>
 
         <div class="table-responsive">
-            <h3 style="margin-bottom: 10px; color: #4a5568;">Registro Risposte Inserzioni</h3>
+            <h3>Registro Risposte Inserzioni</h3>
             <table>
                 <thead>
                     <tr>
@@ -774,7 +814,7 @@
         </div>
 
         <div class="form-group search-bar" style="margin-top:-15px;">
-            <label>Ricerca Testo Libero (Lettere, Annunci, Note personali)</label>
+            <label>Ricerca Testo Libero (Lettere, Annunci, Note personali, Settori Merceologici)</label>
             <input type="text" id="search-testo-libero" placeholder="Inserisci una o più parole chiave..." oninput="executeSearch()">
         </div>
 
@@ -983,8 +1023,8 @@
             elencoAuto.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${item.azienda}</strong><br><small>${item.indirizzo || ''}</small></td>
-                    <td>${item.comune}</td>
+                    <td><strong>${item.azienda}</strong> ${item.settore ? `<br><small style="color:#718096;">S: ${item.settore}</small>` : ''}</td>
+                    <td>${item.comune} ${item.km ? `<br><small style="color:#718096; font-weight:bold;">(${item.km} Km)</small>` : ''}</td>
                     <td>${item.telefono || '-'}</td>
                     <td>${item.data1 ? formatDate(item.data1) : '-'} ${item.invio1?.stato ? `<br><small>(${item.invio1.stato})</small>` : ''}</td>
                     <td>${item.data2 ? formatDate(item.data2) : '-'} ${item.invio2?.stato ? `<br><small>(${item.invio2.stato})</small>` : ''}</td>
@@ -1006,6 +1046,8 @@
                 indirizzo: document.getElementById('indirizzo').value,
                 comune: document.getElementById('comune').value,
                 telefono: document.getElementById('telefono').value,
+                km: document.getElementById('km').value,
+                settore: document.getElementById('settore').value,
                 data1: document.getElementById('data1').value,
                 data2: document.getElementById('data2').value,
                 data3: document.getElementById('data3').value,
@@ -1027,6 +1069,8 @@
             document.getElementById('indirizzo').value = item.indirizzo || '';
             document.getElementById('comune').value = item.comune;
             document.getElementById('telefono').value = item.telefono || '';
+            document.getElementById('km').value = item.km || '';
+            document.getElementById('settore').value = item.settore || '';
             document.getElementById('data1').value = item.data1 || '';
             document.getElementById('data2').value = item.data2 || '';
             document.getElementById('data3').value = item.data3 || '';
@@ -1320,7 +1364,7 @@
 
                     let haColloquio = false;
                     let passStatoFiltro = stato === "" ? true : false;
-                    let aggregatoTesto = (item.azienda + ' ' + item.comune + ' ' + (item.indirizzo || '')).toLowerCase();
+                    let aggregatoTesto = (item.azienda + ' ' + item.comune + ' ' + (item.indirizzo || '') + ' ' + (item.settore || '')).toLowerCase();
                     let ultimoStato = '';
 
                     ['invio1', 'invio2', 'invio3'].forEach(invKey => {
@@ -1346,9 +1390,9 @@
 
                     searchResultsBuffer.push({
                         tipo: 'AUTO',
-                        azienda: item.azienda,
+                        azienda: item.azienda + (item.settore ? ` (${item.settore})` : ''),
                         ruolo: 'Spontanea',
-                        localita: item.comune,
+                        localita: item.comune + (item.km ? ` (${item.km} Km)` : ''),
                         data: item.data1 || '',
                         fonte: 'Spontanea',
                         stato: ultimoStato || 'Non impostato',
@@ -1465,7 +1509,7 @@
         }
 
         // ==========================================
-        // PARTE 4: LOGICA DI BACKUP
+        // PARTE 4: GESTIONE BACKUP
         // ==========================================
         function exportDataToJSON() {
             const backupObject = {
