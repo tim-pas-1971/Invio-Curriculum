@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Candidature</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --bg-color: #f0f4f8;
@@ -446,6 +447,10 @@
             <button class="btn-backup-export" onclick="exportDataToJSON()">Esporta Backup (JSON) <i class="fa-solid fa-cloud-arrow-down"></i></button>
             <button class="btn-backup-import" onclick="document.getElementById('import-file-input').click()">Importa Backup (JSON) <i class="fa-solid fa-cloud-arrow-up"></i></button>
             <input type="file" id="import-file-input" class="hidden" accept=".json" onchange="importDataFromJSON(event)">
+            <button class="btn-backup-import" style="background:#27ae60" onclick="document.getElementById('xlsx-input').click()">
+    <i class="fa-solid fa-file-excel"></i> Importa Excel
+</button>
+<input type="file" id="xlsx-input" class="hidden" accept=".xlsx" onchange="handleExcelImport(event)">
         </div>
     </div>
 
@@ -1563,6 +1568,61 @@
             const d = dateStr.split('-');
             return `${d[2]}/${d[1]}/${d[0]}`;
         }
+        // Funzione per pulire e uniformare i settori automaticamente
+        function normalizzaSettore(s) {
+            if (!s) return "Altro";
+            const val = s.toString().toLowerCase();
+    
+                    if (val.includes("logistica") || val.includes("trasporto")) return "Logistica & Trasporti";
+            if (val.includes("packaging") || val.includes("imballaggi")) return "Packaging & Imballaggi";
+            if (val.includes("meccanica") || val.includes("automazione") || val.includes("officina")) return "Meccanica & Automazione";
+            if (val.includes("chimica")) return "Industria Chimica";
+            if (val.includes("alimentare")) return "Alimentare";
+            if (val.includes("tecnici") || val.includes("impianti")) return "Servizi Tecnici";
+    
+        return s; // Se non trova corrispondenze, lascia il valore originale
+        }
+// Funzione che legge il file Excel
+function handleExcelImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(evt) {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        // Legge il primo foglio del file Excel
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+        
+        // Mappatura delle colonne basata sulle tue intestazioni Excel
+        // Nota: i nomi tra le [''] devono coincidere perfettamente con l'intestazione del tuo file Excel
+        const nuoveCandidature = rows.map(row => ({
+            azienda: row['Azienda / Ente / Scuola'] || 'N/A',
+            indirizzo: row['Indirizzo'] || '',
+            comune: row['Comune'] || '',
+            km: row['Km Sede'] || 0,
+            telefono: row['Telefono di riferimento'] || '',
+            settore: normalizzaSettore(row['Settore Merceologico']),
+            // Inizializziamo i campi per evitare errori nelle funzioni esistenti
+            data1: "", invio1: defaultInvioDetails(),
+            data2: "", invio2: defaultInvioDetails(),
+            data3: "", invio3: defaultInvioDetails()
+        }));
+        
+        // Aggiungiamo i dati importati a quelli già esistenti
+        elencoAuto = [...elencoAuto, ...nuoveCandidature];
+        localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
+        
+        // Aggiorniamo la vista della tabella
+        renderTableAuto();
+        executeSearch();
+        alert("Importati " + nuoveCandidature.length + " record con settori normalizzati!");
+    };
+    
+    reader.readAsArrayBuffer(file);
+}       
     </script>
 </body>
 </html>
