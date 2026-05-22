@@ -164,7 +164,6 @@
         .btn-accent:hover { background-color: #008200; }
         .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; }
         .btn-close { background-color: #dc3545; color: white; }
-        .btn-search-panel { background-color: var(--search-color); color: white; }
 
         .table-responsive {
             overflow-x: auto;
@@ -187,6 +186,27 @@
             background-color: #f2f2f2;
             font-weight: 600;
         }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px;
+        }
+
+        th.sortable:hover {
+            background-color: #e2e2e2;
+        }
+
+        th.sortable::after {
+            content: " ↕";
+            position: absolute;
+            right: 5px;
+            color: #999;
+        }
+
+        th.sort-asc::after { content: " ↑"; color: black; }
+        th.sort-desc::after { content: " ↓"; color: black; }
 
         tr:hover { background-color: #f8f9fa; }
 
@@ -538,7 +558,7 @@
         </form>
 
         <div class="table-responsive">
-            <h3>Registro Risposte Inserzioni</h3>
+            <h3>Registro Risponses Inserzioni</h3>
             <table>
                 <thead>
                     <tr>
@@ -558,7 +578,7 @@
 
     <div id="ricerca-tab" class="container hidden">
         <h2>Pannello Ricerca Avanzata</h2>
-        <p style="font-size:13px; color:#555; margin-bottom:15px;">I risultati si aggiornano automaticamente modificando i filtri sottostanti.</p>
+        <p style="font-size:13px; color:#555; margin-bottom:15px;">I risultati si aggiornano automaticamente modificando i filtri sottostanti. Clicca sulle intestazioni della tabella per ordinare i dati.</p>
         
         <div class="grid-4 search-bar">
             <div class="form-group">
@@ -644,12 +664,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Tipo</th>
-                        <th>Azienda / Richiedente</th>
-                        <th>Ruolo / Comune</th>
-                        <th>Data Riferimento</th>
-                        <th>Portale / Fonte</th>
-                        <th>Stato Corrente</th>
+                        <th class="sortable" onclick="sortTable('tipo', this)">Tipo</th>
+                        <th class="sortable" onclick="sortTable('azienda', this)">Azienda / Ente</th>
+                        <th class="sortable" onclick="sortTable('ruolo', this)">Posizione / Ruolo</th>
+                        <th class="sortable" onclick="sortTable('localita', this)">Località / Comune</th>
+                        <th class="sortable" onclick="sortTable('data', this)">Data Rif.</th>
+                        <th class="sortable" onclick="sortTable('fonte', this)">Portale / Fonte</th>
+                        <th class="sortable" onclick="sortTable('stato', this)">Stato Corrente</th>
                         <th>Azioni</th>
                     </tr>
                 </thead>
@@ -712,6 +733,10 @@
         let elencoAuto = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
         let elencoIns = JSON.parse(localStorage.getItem('track_inserzioni')) || [];
         
+        let searchResultsBuffer = []; // Buffer per memorizzare i risultati filtrati correnti
+        let currentSortField = '';
+        let currentSortOrder = 'asc'; // 'asc' o 'desc'
+
         const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '', esito: 'In fase di valutazione' });
         const defaultInvioDetails = () => ({
             contatto: '', modalita: '', lettera: '', stato: '', dataStato: '',
@@ -725,7 +750,7 @@
             renderTableIns();
             buildColloquiPanelsHTMLAuto();
             buildColloquiPanelsHTMLIns();
-            executeSearch(); // Popola la tabella di ricerca all'avvio
+            executeSearch();
         };
 
         function switchMainTab(target) {
@@ -746,7 +771,7 @@
             } else if(target === 'ricerca') {
                 document.getElementById('ricerca-tab').classList.remove('hidden');
                 document.getElementById('tab-search-btn').classList.add('active');
-                executeSearch(); // Rinfresca i dati ogni volta che si entra nella ricerca
+                executeSearch();
             }
         }
 
@@ -1030,7 +1055,7 @@
                     <td>${formatDate(item.dataRisposta)}</td>
                     <td>${item.tipoContratto || '-'}${item.subContratto ? ` (${item.subContratto})` : ''}${item.tempistica ? ` - ${item.tempistica}` : ''}</td>
                     <td>${item.sede || '-'}</td>
-                    <td><strong>${item.stato || '-'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
+                    <td><strong>${item.stato || 'Non impostato'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
                     <td>
                         <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--ins-color);" onclick="loadEditIns(${index})">Modifica</button>
                         <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteIns(${index})">Elimina</button>
@@ -1150,51 +1175,46 @@
         }
 
         // ==========================================
-        // PARTE 3: MOTORE DI RICERCA CRUCIALE (NUOVA)
+        // PARTE 3: MOTORE DI RICERCA AVANZATO & ORDINABILE
         // ==========================================
         function executeSearch() {
             const tipo = document.getElementById('search-tipo').value;
             const dataDa = document.getElementById('search-data-da').value;
             const dataA = document.getElementById('search-data-a').value;
             const portale = document.getElementById('search-portale').value.toLowerCase();
-            const azienda = document.getElementById('search-azienda').value.toLowerCase();
-            const localita = document.getElementById('search-localita').value.toLowerCase();
+            const azienda = document.getElementById('search-azienda').value.toLowerCase().trim();
+            const localita = document.getElementById('search-localita').value.toLowerCase().trim();
             const stato = document.getElementById('search-stato').value.toLowerCase();
             const colloquiFiltro = document.getElementById('search-colloqui').value;
-            const testoLibero = document.getElementById('search-testo-libero').value.toLowerCase();
+            const testoLibero = document.getElementById('search-testo-libero').value.toLowerCase().trim();
 
-            const tbody = document.getElementById('data-table-body-search');
-            tbody.innerHTML = '';
-            let totalFound = 0;
+            searchResultsBuffer = [];
 
-            // 1. Elaborazione record da Autocandidature
+            // 1. Filtraggio Autocandidature
             if(tipo === "TUTTE" || tipo === "AUTO") {
                 elencoAuto.forEach((item, index) => {
-                    if(!matchText(item.azienda, azienda)) return;
-                    if(!matchText(item.comune, localita)) return;
-                    
-                    // Verifica data riferimento (usa data1 per autocandidatura)
+                    if(azienda && !item.azienda.toLowerCase().includes(azienda)) return;
+                    if(localita && !item.comune.toLowerCase().includes(localita)) return;
                     if(dataDa && item.data1 && item.data1 < dataDa) return;
                     if(dataA && item.data1 && item.data1 > dataA) return;
-
-                    // Portale non nativo su auto, se selezionato salta
                     if(portale) return;
 
-                    // Calcolo stato e presenza colloqui cumulativa negli invii
                     let haColloquio = false;
-                    let statoTrovato = false;
                     let passStatoFiltro = stato === "" ? true : false;
-                    
-                    let stringaLiberaAuto = (item.azienda + ' ' + item.comune + ' ' + (item.indirizzo || '')).toLowerCase();
+                    let aggregatoTesto = (item.azienda + ' ' + item.comune + ' ' + (item.indirizzo || '')).toLowerCase();
+                    let ultimoStato = '';
 
                     ['invio1', 'invio2', 'invio3'].forEach(invKey => {
                         if(item[invKey]) {
-                            stringaLiberaAuto += ' ' + (item[invKey].contatto || '') + ' ' + (item[invKey].lettera || '');
-                            if(item[invKey].stato && item[invKey].stato.toLowerCase() === stato) passStatoFiltro = true;
+                            aggregatoTesto += ' ' + (item[invKey].contatto || '') + ' ' + (item[invKey].lettera || '');
+                            if(item[invKey].stato) {
+                                ultimoStato = item[invKey].stato;
+                                if(item[invKey].stato.toLowerCase() === stato) passStatoFiltro = true;
+                            }
                             if(item[invKey].colloqui) {
                                 item[invKey].colloqui.forEach(c => {
                                     if(c.data) haColloquio = true;
-                                    stringaLiberaAuto += ' ' + (c.nominativo || '') + ' ' + (c.indirizzo || '');
+                                    aggregatoTesto += ' ' + (c.nominativo || '') + ' ' + (c.indirizzo || '') + ' ' + (c.esito || '');
                                 });
                             }
                         }
@@ -1203,32 +1223,41 @@
                     if(!passStatoFiltro) return;
                     if(colloquiFiltro === "SI" && !haColloquio) return;
                     if(colloquiFiltro === "NO" && haColloquio) return;
-                    if(testoLibero && !stringaLiberaAuto.includes(testoLibero)) return;
+                    if(testoLibero && !aggregatoTesto.includes(testoLibero)) return;
 
-                    totalFound++;
-                    appendSearchRow(tbody, 'AUTO', item.azienda, item.comune, item.data1, 'Spontanea', item.invio1?.stato || 'Inviata', 'auto', index);
+                    searchResultsBuffer.push({
+                        tipo: 'AUTO',
+                        azienda: item.azienda,
+                        ruolo: 'Spontanea',
+                        localita: item.comune,
+                        data: item.data1 || '',
+                        fonte: 'Spontanea',
+                        stato: ultimoStato || 'Non impostato',
+                        tabTarget: 'autocandidature',
+                        originalIndex: index
+                    });
                 });
             }
 
-            // 2. Elaborazione record da Risposte Inserzioni
+            // 2. Filtraggio Risposte Inserzioni
             if(tipo === "TUTTE" || tipo === "INS") {
                 elencoIns.forEach((item, index) => {
-                    if(!matchText(item.aziendaRichiedente, azienda) && !matchText(item.posizione, azienda)) return;
-                    if(!matchText(item.localitaAzienda, localita)) return;
-                    if(stato && item.stato && item.stato.toLowerCase() !== stato) return;
+                    const azNome = item.aziendaRichiedente || 'Azienda Anonima';
+                    if(azienda && !azNome.toLowerCase().includes(azienda) && !item.posizione.toLowerCase().includes(azienda)) return;
                     
-                    // Verifica portale (sia principale che secondaria)
+                    const locNome = item.localitaAzienda || '';
+                    if(localita && !locNome.toLowerCase().includes(localita)) return;
+                    if(stato && item.stato && item.stato.toLowerCase() !== stato) return;
+
                     if(portale) {
                         const pPrinc = item.portale ? item.portale.toLowerCase() : '';
                         const pSec = item.portaleSec ? item.portaleSec.toLowerCase() : '';
                         if(pPrinc !== portale && pSec !== portale) return;
                     }
 
-                    // Verifica date riferimento
                     if(dataDa && item.dataRisposta && item.dataRisposta < dataDa) return;
                     if(dataA && item.dataRisposta && item.dataRisposta > dataA) return;
 
-                    // Verifica presenza colloqui
                     let haColloquio = false;
                     if(item.colloqui) {
                         item.colloqui.forEach(c => { if(c.data) haColloquio = true; });
@@ -1236,41 +1265,94 @@
                     if(colloquiFiltro === "SI" && !haColloquio) return;
                     if(colloquiFiltro === "NO" && haColloquio) return;
 
-                    // Ricerca testo libero
                     if(testoLibero) {
-                        const aggregatoLibero = (item.posizione + ' ' + (item.aziendaRichiedente || '') + ' ' + (item.localitaAzienda || '') + ' ' + (item.testoAnnuncio || '') + ' ' + (item.note || '')).toLowerCase();
-                        if(!aggregatoLibero.includes(testoLibero)) return;
+                        let aggregatoTesto = (item.posizione + ' ' + azNome + ' ' + locNome + ' ' + (item.testoAnnuncio || '') + ' ' + (item.note || '') + ' ' + (item.tipoContratto || '')).toLowerCase();
+                        if(item.colloqui) {
+                            item.colloqui.forEach(c => { aggregatoTesto += ' ' + (c.nominativo || '') + ' ' + (c.indirizzo || '') + ' ' + (c.esito || ''); });
+                        }
+                        if(!aggregatoTesto.includes(testoLibero)) return;
                     }
 
-                    totalFound++;
-                    const fonteVisibile = item.portale + (item.portaleSec ? ` (${item.portaleSec})` : '');
-                    appendSearchRow(tbody, 'INSERZIONE', item.aziendaRichiedente || 'Azienda Anonima', item.posizione, item.dataRisposta, fonteVisibile, item.stato || 'Confermata', 'inserzioni', index);
+                    searchResultsBuffer.push({
+                        tipo: 'INSERZIONE',
+                        azienda: azNome,
+                        ruolo: item.posizione,
+                        localita: locNome || '-',
+                        data: item.dataRisposta || '',
+                        fonte: item.portale + (item.portaleSec ? ` (${item.portaleSec})` : ''),
+                        stato: item.stato || 'Non impostato',
+                        tabTarget: 'inserzioni',
+                        originalIndex: index
+                    });
                 });
             }
 
-            document.getElementById('search-count').innerText = totalFound;
+            document.getElementById('search-count').innerText = searchResultsBuffer.length;
+            
+            // Applica l'ordinamento se attivo, altrimenti renderizza direttamente
+            if (currentSortField) {
+                applySortLogic();
+            } else {
+                renderSearchTableHTML();
+            }
         }
 
-        function matchText(fieldValue, searchValue) {
-            if(!searchValue) return true;
-            if(!fieldValue) return false;
-            return fieldValue.toLowerCase().includes(searchValue);
+        function renderSearchTableHTML() {
+            const tbody = document.getElementById('data-table-body-search');
+            tbody.innerHTML = '';
+
+            searchResultsBuffer.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge ${item.tipo==='AUTO'?'badge-auto':'badge-ins'}">${item.tipo}</span></td>
+                    <td><strong>${item.azienda}</strong></td>
+                    <td>${item.ruolo}</td>
+                    <td>${item.localita}</td>
+                    <td>${item.data ? formatDate(item.data) : '-'}</td>
+                    <td><small>${item.fonte}</small></td>
+                    <td><small>${item.stato}</small></td>
+                    <td>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Vedi/Modifica</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        function appendSearchRow(tbody, tipoLabel, col1, col2, dataRaw, fonte, statoLabel, tabTarget, originalIndex) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><span class="badge ${tipoLabel==='AUTO'?'badge-auto':'badge-ins'}">${tipoLabel}</span></td>
-                <td><strong>${col1}</strong></td>
-                <td>${col2}</td>
-                <td>${dataRaw ? formatDate(dataRaw) : '-'}</td>
-                <td><small>${fonte}</small></td>
-                <td><small>${statoLabel}</small></td>
-                <td>
-                    <button class="btn-primary" style="padding:3px 6px; font-size:11px;" onclick="goToRecordAndEdit('${tabTarget}', ${originalIndex})">Vedi/Modifica</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
+        function sortTable(field, thElement) {
+            // Gestione classi grafiche freccia su intestazioni
+            const headers = document.querySelectorAll('th.sortable');
+            headers.forEach(h => {
+                if(h !== thElement) h.className = 'sortable';
+            });
+
+            if (currentSortField === field) {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortField = field;
+                currentSortOrder = 'asc';
+            }
+
+            thElement.className = `sortable sort-${currentSortOrder}`;
+            applySortLogic();
+        }
+
+        function applySortLogic() {
+            searchResultsBuffer.sort((a, b) => {
+                let valA = a[currentSortField].toLowerCase();
+                let valB = b[currentSortField].toLowerCase();
+
+                if (currentSortField === 'data') {
+                    valA = a.data || '0000-00-00';
+                    valB = b.data || '0000-00-00';
+                }
+
+                if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderSearchTableHTML();
         }
 
         function goToRecordAndEdit(tabId, index) {
