@@ -13,6 +13,7 @@
             --text-color: #333333;
             --border-color: #dddddd;
             --ins-color: #e06666;
+            --search-color: #4a69bd;
         }
 
         * {
@@ -119,6 +120,14 @@
             margin-bottom: 15px;
         }
 
+        .grid-4.search-bar {
+            border-left: 4px solid var(--search-color);
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
         .date-input-group {
             display: flex;
             gap: 5px;
@@ -155,6 +164,7 @@
         .btn-accent:hover { background-color: #008200; }
         .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; }
         .btn-close { background-color: #dc3545; color: white; }
+        .btn-search-panel { background-color: var(--search-color); color: white; }
 
         .table-responsive {
             overflow-x: auto;
@@ -243,6 +253,17 @@
             margin-top: 5px;
         }
 
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            border-radius: 3px;
+        }
+        .badge-auto { background-color: var(--primary-color); }
+        .badge-ins { background-color: var(--ins-color); }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -256,7 +277,7 @@
     <nav>
         <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">Autocandidature</button>
         <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">Risposta Inserzioni</button>
-        <button class="nav-btn" onclick="alert('Sezione Ricerca: Configurazione futura')">Ricerca Avanzata</button>
+        <button id="tab-search-btn" class="nav-btn" onclick="switchMainTab('ricerca')">Ricerca Avanzata</button>
         <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
     </nav>
 
@@ -535,6 +556,108 @@
         </div>
     </div>
 
+    <div id="ricerca-tab" class="container hidden">
+        <h2>Pannello Ricerca Avanzata</h2>
+        <p style="font-size:13px; color:#555; margin-bottom:15px;">I risultati si aggiornano automaticamente modificando i filtri sottostanti.</p>
+        
+        <div class="grid-4 search-bar">
+            <div class="form-group">
+                <label>Tipologia di Curriculum</label>
+                <select id="search-tipo" onchange="executeSearch()">
+                    <option value="TUTTE">Tutte le candidature</option>
+                    <option value="AUTO">Solo Autocandidature</option>
+                    <option value="INS">Solo Risposte a Inserzioni</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Data Inizio (Dal)</label>
+                <input type="date" id="search-data-da" onchange="executeSearch()">
+            </div>
+            <div class="form-group">
+                <label>Data Fine (Al)</label>
+                <input type="date" id="search-data-a" onchange="executeSearch()">
+            </div>
+            <div class="form-group">
+                <label>Agenzia / Portale (Princ o Sec)</label>
+                <select id="search-portale" onchange="executeSearch()">
+                    <option value="">-- Tutti i portali --</option>
+                    <option value="Adecco">Adecco</option>
+                    <option value="ADHR">ADHR</option>
+                    <option value="Afol Metropolitana">Afol Metropolitana</option>
+                    <option value="Bakeca">Bakeca</option>
+                    <option value="BSH">BSH</option>
+                    <option value="Indeed">Indeed</option>
+                    <option value="InMatch">InMatch</option>
+                    <option value="Job Rapido">Job Rapido</option>
+                    <option value="JobToMe">JobToMe</option>
+                    <option value="Jobeka">Jobeka</option>
+                    <option value="Linkedin">Linkedin</option>
+                    <option value="ManPower">ManPower</option>
+                    <option value="Milanogi">Milanogi</option>
+                    <option value="NetToWork">NetToWork</option>
+                    <option value="Orienta">Orienta</option>
+                    <option value="Profili&Carriere">Profili&Carriere</option>
+                    <option value="Talent">Talent</option>
+                    <option value="TrovoLavoro">TrovoLavoro</option>
+                    <option value="Umana">Umana</option>
+                    <option value="Altro">Altro ...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid-4 search-bar" style="margin-top:-15px;">
+            <div class="form-group">
+                <label>Nome Azienda / Scuola</label>
+                <input type="text" id="search-azienda" placeholder="Cerca azienda..." oninput="executeSearch()">
+            </div>
+            <div class="form-group">
+                <label>Località / Comune</label>
+                <input type="text" id="search-localita" placeholder="Cerca comune o città..." oninput="executeSearch()">
+            </div>
+            <div class="form-group">
+                <label>Stato Richiesta</label>
+                <select id="search-stato" onchange="executeSearch()">
+                    <option value="">-- Tutti gli stati --</option>
+                    <option value="Conferma ricevimento candidatura">Conferma ricevimento candidatura</option>
+                    <option value="Riscontro positivo">Riscontro positivo</option>
+                    <option value="Riscontro negativo">Riscontro negativo</option>
+                    <option value="Archiviata">Archiviata</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Stato Colloqui</label>
+                <select id="search-colloqui" onchange="executeSearch()">
+                    <option value="TUTTI">Tutti (Con o senza colloqui)</option>
+                    <option value="SI">Con almeno un colloquio fissato</option>
+                    <option value="NO">Nessun colloquio registrato</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group search-bar" style="margin-top:-15px;">
+            <label>Ricerca Testo Libero (Lettere, Annunci, Note personali)</label>
+            <input type="text" id="search-testo-libero" placeholder="Inserisci una o più parole chiave..." oninput="executeSearch()">
+        </div>
+
+        <div class="table-responsive">
+            <h3>Risultati della Ricerca (<span id="search-count">0</span> trovati)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Azienda / Richiedente</th>
+                        <th>Ruolo / Comune</th>
+                        <th>Data Riferimento</th>
+                        <th>Portale / Fonte</th>
+                        <th>Stato Corrente</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body-search"></tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="details-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -602,13 +725,17 @@
             renderTableIns();
             buildColloquiPanelsHTMLAuto();
             buildColloquiPanelsHTMLIns();
+            executeSearch(); // Popola la tabella di ricerca all'avvio
         };
 
         function switchMainTab(target) {
             document.getElementById('autocandidature-tab').classList.add('hidden');
             document.getElementById('inserzioni-tab').classList.add('hidden');
+            document.getElementById('ricerca-tab').classList.add('hidden');
+            
             document.getElementById('tab-auto-btn').classList.remove('active');
             document.getElementById('tab-ins-btn').classList.remove('active');
+            document.getElementById('tab-search-btn').classList.remove('active');
 
             if(target === 'autocandidature') {
                 document.getElementById('autocandidature-tab').classList.remove('hidden');
@@ -616,6 +743,10 @@
             } else if(target === 'inserzioni') {
                 document.getElementById('inserzioni-tab').classList.remove('hidden');
                 document.getElementById('tab-ins-btn').classList.add('active');
+            } else if(target === 'ricerca') {
+                document.getElementById('ricerca-tab').classList.remove('hidden');
+                document.getElementById('tab-search-btn').classList.add('active');
+                executeSearch(); // Rinfresca i dati ogni volta che si entra nella ricerca
             }
         }
 
@@ -1016,6 +1147,136 @@
             document.getElementById('tempistica-contratto-group').classList.add('hidden');
             document.getElementById('ins-section-colloqui').classList.add('hidden');
             for(let i=1; i<=4; i++) { toggleCollFieldsGeneric('ins', i); }
+        }
+
+        // ==========================================
+        // PARTE 3: MOTORE DI RICERCA CRUCIALE (NUOVA)
+        // ==========================================
+        function executeSearch() {
+            const tipo = document.getElementById('search-tipo').value;
+            const dataDa = document.getElementById('search-data-da').value;
+            const dataA = document.getElementById('search-data-a').value;
+            const portale = document.getElementById('search-portale').value.toLowerCase();
+            const azienda = document.getElementById('search-azienda').value.toLowerCase();
+            const localita = document.getElementById('search-localita').value.toLowerCase();
+            const stato = document.getElementById('search-stato').value.toLowerCase();
+            const colloquiFiltro = document.getElementById('search-colloqui').value;
+            const testoLibero = document.getElementById('search-testo-libero').value.toLowerCase();
+
+            const tbody = document.getElementById('data-table-body-search');
+            tbody.innerHTML = '';
+            let totalFound = 0;
+
+            // 1. Elaborazione record da Autocandidature
+            if(tipo === "TUTTE" || tipo === "AUTO") {
+                elencoAuto.forEach((item, index) => {
+                    if(!matchText(item.azienda, azienda)) return;
+                    if(!matchText(item.comune, localita)) return;
+                    
+                    // Verifica data riferimento (usa data1 per autocandidatura)
+                    if(dataDa && item.data1 && item.data1 < dataDa) return;
+                    if(dataA && item.data1 && item.data1 > dataA) return;
+
+                    // Portale non nativo su auto, se selezionato salta
+                    if(portale) return;
+
+                    // Calcolo stato e presenza colloqui cumulativa negli invii
+                    let haColloquio = false;
+                    let statoTrovato = false;
+                    let passStatoFiltro = stato === "" ? true : false;
+                    
+                    let stringaLiberaAuto = (item.azienda + ' ' + item.comune + ' ' + (item.indirizzo || '')).toLowerCase();
+
+                    ['invio1', 'invio2', 'invio3'].forEach(invKey => {
+                        if(item[invKey]) {
+                            stringaLiberaAuto += ' ' + (item[invKey].contatto || '') + ' ' + (item[invKey].lettera || '');
+                            if(item[invKey].stato && item[invKey].stato.toLowerCase() === stato) passStatoFiltro = true;
+                            if(item[invKey].colloqui) {
+                                item[invKey].colloqui.forEach(c => {
+                                    if(c.data) haColloquio = true;
+                                    stringaLiberaAuto += ' ' + (c.nominativo || '') + ' ' + (c.indirizzo || '');
+                                });
+                            }
+                        }
+                    });
+
+                    if(!passStatoFiltro) return;
+                    if(colloquiFiltro === "SI" && !haColloquio) return;
+                    if(colloquiFiltro === "NO" && haColloquio) return;
+                    if(testoLibero && !stringaLiberaAuto.includes(testoLibero)) return;
+
+                    totalFound++;
+                    appendSearchRow(tbody, 'AUTO', item.azienda, item.comune, item.data1, 'Spontanea', item.invio1?.stato || 'Inviata', 'auto', index);
+                });
+            }
+
+            // 2. Elaborazione record da Risposte Inserzioni
+            if(tipo === "TUTTE" || tipo === "INS") {
+                elencoIns.forEach((item, index) => {
+                    if(!matchText(item.aziendaRichiedente, azienda) && !matchText(item.posizione, azienda)) return;
+                    if(!matchText(item.localitaAzienda, localita)) return;
+                    if(stato && item.stato && item.stato.toLowerCase() !== stato) return;
+                    
+                    // Verifica portale (sia principale che secondaria)
+                    if(portale) {
+                        const pPrinc = item.portale ? item.portale.toLowerCase() : '';
+                        const pSec = item.portaleSec ? item.portaleSec.toLowerCase() : '';
+                        if(pPrinc !== portale && pSec !== portale) return;
+                    }
+
+                    // Verifica date riferimento
+                    if(dataDa && item.dataRisposta && item.dataRisposta < dataDa) return;
+                    if(dataA && item.dataRisposta && item.dataRisposta > dataA) return;
+
+                    // Verifica presenza colloqui
+                    let haColloquio = false;
+                    if(item.colloqui) {
+                        item.colloqui.forEach(c => { if(c.data) haColloquio = true; });
+                    }
+                    if(colloquiFiltro === "SI" && !haColloquio) return;
+                    if(colloquiFiltro === "NO" && haColloquio) return;
+
+                    // Ricerca testo libero
+                    if(testoLibero) {
+                        const aggregatoLibero = (item.posizione + ' ' + (item.aziendaRichiedente || '') + ' ' + (item.localitaAzienda || '') + ' ' + (item.testoAnnuncio || '') + ' ' + (item.note || '')).toLowerCase();
+                        if(!aggregatoLibero.includes(testoLibero)) return;
+                    }
+
+                    totalFound++;
+                    const fonteVisibile = item.portale + (item.portaleSec ? ` (${item.portaleSec})` : '');
+                    appendSearchRow(tbody, 'INSERZIONE', item.aziendaRichiedente || 'Azienda Anonima', item.posizione, item.dataRisposta, fonteVisibile, item.stato || 'Confermata', 'inserzioni', index);
+                });
+            }
+
+            document.getElementById('search-count').innerText = totalFound;
+        }
+
+        function matchText(fieldValue, searchValue) {
+            if(!searchValue) return true;
+            if(!fieldValue) return false;
+            return fieldValue.toLowerCase().includes(searchValue);
+        }
+
+        function appendSearchRow(tbody, tipoLabel, col1, col2, dataRaw, fonte, statoLabel, tabTarget, originalIndex) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="badge ${tipoLabel==='AUTO'?'badge-auto':'badge-ins'}">${tipoLabel}</span></td>
+                <td><strong>${col1}</strong></td>
+                <td>${col2}</td>
+                <td>${dataRaw ? formatDate(dataRaw) : '-'}</td>
+                <td><small>${fonte}</small></td>
+                <td><small>${statoLabel}</small></td>
+                <td>
+                    <button class="btn-primary" style="padding:3px 6px; font-size:11px;" onclick="goToRecordAndEdit('${tabTarget}', ${originalIndex})">Vedi/Modifica</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function goToRecordAndEdit(tabId, index) {
+            switchMainTab(tabId);
+            if(tabId === 'autocandidature') loadEditAuto(index);
+            else if(tabId === 'inserzioni') loadEditIns(index);
         }
 
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
