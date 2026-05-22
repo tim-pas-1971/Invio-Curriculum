@@ -94,6 +94,12 @@
             gap: 15px;
         }
 
+        .grid-6 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
         .grid-3 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -105,8 +111,12 @@
             border-left: 4px solid var(--primary-color);
         }
 
-        .grid-3.inserzioni-bar {
+        .grid-3.inserzioni-bar, .grid-4.inserzioni-bar, .grid-6.inserzioni-bar {
             border-left: 4px solid var(--ins-color);
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
         }
 
         .date-input-group {
@@ -325,7 +335,7 @@
         <form id="ins-form" onsubmit="saveDataIns(event)">
             <input type="hidden" id="edit-index-ins" value="">
 
-            <div class="grid-3 inserzioni-bar">
+            <div class="grid-4 inserzioni-bar">
                 <div class="form-group">
                     <label>Data risposta inserzione *</label>
                     <input type="date" id="ins-data-risposta" required>
@@ -382,28 +392,48 @@
                         <option value="Altro">Altro ...</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="grid-4 inserzioni-bar">
                 <div class="form-group">
                     <label>Azienda richiedente</label>
                     <input type="text" id="ins-azienda-richiedente">
+                </div>
+            </div>
+
+            <div class="grid-6 inserzioni-bar">
+                <div class="form-group">
+                    <label>Località Azienda</label>
+                    <input type="text" id="ins-localita-azienda">
                 </div>
                 <div class="form-group">
                     <label>Titolo della Posizione *</label>
                     <input type="text" id="ins-posizione" required>
                 </div>
                 <div class="form-group">
-                    <label>Retribuzione Minima (€)</label>
+                    <label>Tipo retribuzione</label>
+                    <select id="ins-tipo-retribuzione">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Ral Annuale">Ral Annuale</option>
+                        <option value="Mensile">Mensile</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Lorda / Netta</label>
+                    <select id="ins-lorda-netta">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Lorda">Lorda</option>
+                        <option value="Netta">Netta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Retribuzione Minima</label>
                     <div class="currency-input"><input type="number" id="ins-ret-min" min="0"></div>
                 </div>
                 <div class="form-group">
-                    <label>Retribuzione Massima (€)</label>
+                    <label>Retribuzione Massima</label>
                     <div class="currency-input"><input type="number" id="ins-ret-max" min="0"></div>
                 </div>
             </div>
 
-            <div class="grid-4 inserzioni-bar">
+            <div class="grid-4 inserzioni-bar" style="background:none; padding:0; border:none; margin-bottom:0;">
                 <div class="form-group">
                     <label>Tipologia di contratto</label>
                     <select id="ins-tipo-contratto" onchange="handleContrattoSelectionChange()">
@@ -449,7 +479,7 @@
                 <textarea id="ins-testo-annuncio" placeholder="Incolla qui l'intero annuncio di lavoro..."></textarea>
             </div>
 
-            <div class="grid-3 inserzioni-bar">
+            <div class="grid-3 inserzioni-bar" style="background:none; padding:0; border:none; margin-bottom:0;">
                 <div class="form-group">
                     <label>Stato Candidatura</label>
                     <select id="ins-stato" onchange="toggleInsModalColloquiSection()">
@@ -483,7 +513,7 @@
                 <textarea id="ins-note" placeholder="Inserisci qui valutazioni, feedback o promemoria liberi..."></textarea>
             </div>
 
-            <button type="submit" class="btn-accent" style="background-color: var(--ins-color);">Salva Scheda Inserzione</button>
+            <button type="submit" class="btn-accent" style="background-color: var(--ins-color); margin-top: 15px;">Salva Scheda Inserzione</button>
         </form>
 
         <div class="table-responsive">
@@ -864,7 +894,7 @@
             elencoIns.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${item.posizione}</strong><br><small>${item.aziendaRichiedente || 'Azienda Anonima'}</small></td>
+                    <td><strong>${item.posizione}</strong><br><small>${item.aziendaRichiedente || 'Azienda Anonima'}${item.localitaAzienda ? ` - ${item.localitaAzienda}` : ''}</small></td>
                     <td>P: ${item.portale}${item.portaleSec ? ` <br><small>S: ${item.portaleSec}</small>` : ''}</td>
                     <td>${formatDate(item.dataRisposta)}</td>
                     <td>${item.tipoContratto || '-'}${item.subContratto ? ` (${item.subContratto})` : ''}${item.tempistica ? ` - ${item.tempistica}` : ''}</td>
@@ -902,7 +932,10 @@
                 portale: document.getElementById('ins-portale').value,
                 portaleSec: document.getElementById('ins-portale-sec').value,
                 aziendaRichiedente: document.getElementById('ins-azienda-richiedente').value,
+                localitaAzienda: document.getElementById('ins-localita-azienda').value,
                 posizione: document.getElementById('ins-posizione').value,
+                tipoRetribuzione: document.getElementById('ins-tipo-retribuzione').value,
+                lordaNetta: document.getElementById('ins-lorda-netta').value,
                 retMin: document.getElementById('ins-ret-min').value,
                 retMax: document.getElementById('ins-ret-max').value,
                 tempoLavoro: document.getElementById('ins-tempo-lavoro').value,
@@ -933,7 +966,10 @@
             document.getElementById('ins-portale').value = item.portale || '';
             document.getElementById('ins-portale-sec').value = item.portaleSec || '';
             document.getElementById('ins-azienda-richiedente').value = item.aziendaRichiedente || '';
+            document.getElementById('ins-localita-azienda').value = item.localitaAzienda || '';
             document.getElementById('ins-posizione').value = item.posizione || '';
+            document.getElementById('ins-tipo-retribuzione').value = item.tipoRetribuzione || '';
+            document.getElementById('ins-lorda-netta').value = item.lordaNetta || '';
             document.getElementById('ins-ret-min').value = item.retMin || '';
             document.getElementById('ins-ret-max').value = item.retMax || '';
             document.getElementById('ins-tempo-lavoro').value = item.tempoLavoro || '';
