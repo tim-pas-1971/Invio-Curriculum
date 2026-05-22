@@ -263,21 +263,21 @@
                     <label>Data 1° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data1">
-                        <button type="button" class="btn-details" onclick="openDetails(1)">DETTAGLI</button>
+                        <button type="button" class="btn-details" onclick="openDetails(1)">DETTAGLI RELATIVI AL 1° INVIO</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 2° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data2">
-                        <button type="button" class="btn-details" onclick="openDetails(2)">DETTAGLI</button>
+                        <button type="button" class="btn-details" onclick="openDetails(2)">DETTAGLI RELATIVI AL 2° INVIO</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 3° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data3">
-                        <button type="button" class="btn-details" onclick="openDetails(3)">DETTAGLI</button>
+                        <button type="button" class="btn-details" onclick="openDetails(3)">DETTAGLI RELATIVI AL 3° INVIO</button>
                     </div>
                 </div>
             </div>
@@ -334,7 +334,7 @@
 
             <div class="form-group">
                 <label>Stato Invio</label>
-                <select id="det-stato" onchange="toggleColloquiSection()">
+                <select id="det-stato" onchange="toggleInterviewsSection()">
                     <option value="">-- Seleziona Stato --</option>
                     <option value="Riscontro positivo">Riscontro positivo</option>
                     <option value="Riscontro negativo">Riscontro negativo</option>
@@ -358,8 +358,7 @@
                     <button type="button" class="coll-tab-btn" onclick="switchCollTab(4)">4° Colloquio</button>
                 </div>
 
-                <div id="panel-coll-container">
-                    </div>
+                <div id="panel-coll-container"></div>
             </div>
 
             <button type="button" class="btn-primary" style="margin-top:25px; width:100%;" onclick="saveDetailsContextual()">Conferma e Salva Dettagli Invio</button>
@@ -369,10 +368,8 @@
     <script>
         let elencoCandidature = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
         
-        // Struttura di un singolo colloquio
         const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '' });
 
-        // Struttura di un invio con 4 colloqui array-based
         const defaultInvioDetails = () => ({
             contatto: '', modalita: '', lettera: '', stato: '', dataStato: '',
             colloqui: [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()]
@@ -389,7 +386,6 @@
             buildColloquiPanelsHTML();
         };
 
-        // Genera la struttura HTML interna per i 4 pannelli colloquio
         function buildColloquiPanelsHTML() {
             const container = document.getElementById('panel-coll-container');
             container.innerHTML = '';
@@ -439,6 +435,22 @@
                 `;
                 container.appendChild(div);
             }
+        }
+
+        /* Forza rinfresco visivo campi colloquio all'apertura */
+        function checkAllCollFieldsVisibility() {
+            for(let i = 1; i <= 4; i++) {
+                toggleCollFields(i);
+            }
+        }
+
+        function toggleCollFields(i) {
+            const inputData = document.getElementById(`coll-data-${i}`);
+            if(!inputData) return;
+            const dataVal = inputData.value;
+            const fieldsDiv = document.getElementById(`fields-coll-${i}`);
+            if(dataVal) { fieldsDiv.classList.remove('hidden'); } 
+            else { fieldsDiv.classList.add('hidden'); }
         }
 
         function renderTable() {
@@ -519,7 +531,6 @@
             document.getElementById('det-stato').value = detailsObj.stato || '';
             document.getElementById('det-data-stato').value = detailsObj.dataStato || '';
             
-            // Ripristina i dati dei 4 colloqui nei campi
             if(!detailsObj.colloqui) detailsObj.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
             for(let i = 1; i <= 4; i++) {
                 const c = detailsObj.colloqui[i-1] || defaultColloquio();
@@ -530,19 +541,12 @@
                 document.getElementById(`coll-nominativo-${i}`).value = c.nominativo || '';
                 document.getElementById(`coll-tel-${i}`).value = c.tel || '';
                 document.getElementById(`coll-mail-${i}`).value = c.mail || '';
-                toggleCollFields(i);
             }
 
-            toggleInterviewsTabReset();
+            switchCollTab(1);
             toggleInterviewsSection();
+            checkAllCollFieldsVisibility();
             document.getElementById('details-modal').style.display = 'flex';
-        }
-
-        function toggleCollFields(i) {
-            const dataVal = document.getElementById(`coll-data-${i}`).value;
-            const fieldsDiv = document.getElementById(`fields-coll-${i}`);
-            if(dataVal) { fieldsDiv.classList.remove('hidden'); } 
-            else { fieldsDiv.classList.add('hidden'); }
         }
 
         function toggleInterviewsSection() {
@@ -563,10 +567,6 @@
                 if(i === activeNum) panel.classList.remove('hidden');
                 else panel.className = 'panel-coll hidden';
             }
-        }
-
-        function toggleInterviewsTabReset() {
-            switchCollTab(1);
         }
 
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
