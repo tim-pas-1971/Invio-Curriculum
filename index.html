@@ -1023,25 +1023,26 @@
         // PARTE 1: SCRIPT GESTIONE AUTOCANDIDATURE
         // ==========================================
         function renderTableAuto() {
-            const tbody = document.getElementById('data-table-body-auto');
-            tbody.innerHTML = '';
-            elencoAuto.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${item.azienda}</strong> ${item.settore ? `<br><small style="color:#718096;">S: ${item.settore}</small>` : ''}</td>
-                    <td>${item.comune} ${item.km ? `<br><small style="color:#718096; font-weight:bold;">(${item.km} Km)</small>` : ''}</td>
-                    <td>${item.telefono || '-'}</td>
-                    <td>${item.data1 ? formatDate(item.data1) : '-'} ${item.invio1?.stato ? `<br><small>(${item.invio1.stato})</small>` : ''}</td>
-                    <td>${item.data2 ? formatDate(item.data2) : '-'} ${item.invio2?.stato ? `<br><small>(${item.invio2.stato})</small>` : ''}</td>
-                    <td>${item.data3 ? formatDate(item.data3) : '-'} ${item.invio3?.stato ? `<br><small>(${item.invio3.stato})</small>` : ''}</td>
-                    <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteAuto(${index})"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+    const tbody = document.getElementById('data-table-body-auto');
+    tbody.innerHTML = '';
+    elencoAuto.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${item.azienda}</strong> ${item.settore ? `<br><small style="color:#718096;">S: ${item.settore}</small>` : ''}</td>
+            <td>${item.comune} ${item.km ? `<br><small style="color:#718096; font-weight:bold;">(${item.km} Km)</small>` : ''}</td>
+            <td>${item.telefono || '-'}</td>
+            <td>${item.data1 ? formatDate(item.data1) : '-'}</td>
+            <td>${item.data2 ? formatDate(item.data2) : '-'}</td>
+            <td>${item.data3 ? formatDate(item.data3) : '-'}</td>
+            <td style="white-space:nowrap;">
+                <button title="Apri" class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-folder-open"></i></button>
+                <button title="Modifica" class="btn-primary" style="padding:4px 8px; font-size:12px; background:#ecc94b;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-pen"></i></button>
+                <button title="Elimina" class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteAuto(${index})"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
         function saveDataAuto(e) {
             e.preventDefault();
@@ -1585,19 +1586,13 @@
 // Funzione che legge il file Excel
 function handleExcelImport(e) {
     const file = e.target.files[0];
-    if (!file) return;
-    
     const reader = new FileReader();
-    
     reader.onload = function(evt) {
         const data = new Uint8Array(evt.target.result);
         const workbook = XLSX.read(data, {type: 'array'});
-        // Legge il primo foglio del file Excel
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet);
         
-        // Mappatura delle colonne basata sulle tue intestazioni Excel
-        // Nota: i nomi tra le [''] devono coincidere perfettamente con l'intestazione del tuo file Excel
         const nuoveCandidature = rows.map(row => ({
             azienda: row['Azienda / Ente / Scuola'] || 'N/A',
             indirizzo: row['Indirizzo'] || '',
@@ -1605,22 +1600,19 @@ function handleExcelImport(e) {
             km: row['Km Sede'] || 0,
             telefono: row['Telefono di riferimento'] || '',
             settore: normalizzaSettore(row['Settore Merceologico']),
-            // Inizializziamo i campi per evitare errori nelle funzioni esistenti
-            data1: "", invio1: defaultInvioDetails(),
-            data2: "", invio2: defaultInvioDetails(),
-            data3: "", invio3: defaultInvioDetails()
+            // Ora leggiamo correttamente le colonne dal CSV
+            data1: row['Data 1° Invio'] || '',
+            invio1: row['Contatto di riferimento (Mail / Nominativo)'] || '',
+            data2: row['Data 2° Invio'] || '',
+            invio2: row['Contatto di riferimento (Mail / Nominativo)_1'] || '', // Verifica se Excel rinomina la colonna duplicata
+            data3: "", invio3: ""
         }));
         
-        // Aggiungiamo i dati importati a quelli già esistenti
         elencoAuto = [...elencoAuto, ...nuoveCandidature];
         localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
-        
-        // Aggiorniamo la vista della tabella
         renderTableAuto();
-        executeSearch();
-        alert("Importati " + nuoveCandidature.length + " record con settori normalizzati!");
+        alert("Importati " + nuoveCandidature.length + " record completi!");
     };
-    
     reader.readAsArrayBuffer(file);
 }       
     </script>
