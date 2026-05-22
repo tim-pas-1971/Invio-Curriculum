@@ -1,10 +1,3 @@
-Hai perfettamente ragione sulla data: l'avevo tolta dal modulo visivo in alto, ma era rimasta per errore nella tabella riassuntiva in basso. Ora l'ho eliminata del tutto, così non crea confusione.
-
-Ho aggiunto anche la nuova logica che hai richiesto: adesso, se selezioni Tempo determinato oppure Contratto somministrazione, compare istantaneamente un nuovo campo di testo libero intitolato "Durata / Tempistica prevista" (es. 6 mesi, fino a dicembre, 1 anno con proroghe). Se selezioni Tempo indeterminato o lasci vuoto, il campo scompare da solo per non occupare spazio inutilmente.
-
-Ecco il codice completo aggiornato e corretto al 100%. Sostituisci tutto il contenuto del tuo file index.html su GitHub:
-
-HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -338,7 +331,18 @@ HTML
                     <input type="date" id="ins-data-risposta" required>
                 </div>
                 <div class="form-group">
-                    <label>Agenzia per il Lavoro / Portale *</label>
+                    <label>Azienda richiedente</label>
+                    <input type="text" id="ins-azienda-richiedente">
+                </div>
+                <div class="form-group">
+                    <label>Titolo della Posizione *</label>
+                    <input type="text" id="ins-posizione" required>
+                </div>
+            </div>
+
+            <div class="grid-4 inserzioni-bar">
+                <div class="form-group">
+                    <label>Agenzia per il Lavoro / Portale (principale) *</label>
                     <select id="ins-portale" required>
                         <option value="">-- Seleziona --</option>
                         <option value="Adecco">Adecco</option>
@@ -364,16 +368,31 @@ HTML
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Azienda richiedente</label>
-                    <input type="text" id="ins-azienda-richiedente">
+                    <label>Agenzia per il Lavoro / Portale (secondaria)</label>
+                    <select id="ins-portale-sec">
+                        <option value="">-- Nessuno / Seleziona --</option>
+                        <option value="Adecco">Adecco</option>
+                        <option value="ADHR">ADHR</option>
+                        <option value="Afol Metropolitana">Afol Metropolitana</option>
+                        <option value="Bakeca">Bakeca</option>
+                        <option value="BSH">BSH</option>
+                        <option value="Indeed">Indeed</option>
+                        <option value="InMatch">InMatch</option>
+                        <option value="Job Rapido">Job Rapido</option>
+                        <option value="JobToMe">JobToMe</option>
+                        <option value="Jobeka">Jobeka</option>
+                        <option value="Kinkedin">Kinkedin</option>
+                        <option value="ManPower">ManPower</option>
+                        <option value="Milanogi">Milanogi</option>
+                        <option value="NetToWork">NetToWork</option>
+                        <option value="Orienta">Orienta</option>
+                        <option value="Profili&Carriere">Profili&Carriere</option>
+                        <option value="Talent">Talent</option>
+                        <option value="TrovoLavoro">TrovoLavoro</option>
+                        <option value="Umana">Umana</option>
+                        <option value="Altro">Altro ...</option>
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label>Titolo della Posizione *</label>
-                    <input type="text" id="ins-posizione" required>
-                </div>
-            </div>
-
-            <div class="grid-3 inserzioni-bar">
                 <div class="form-group">
                     <label>Retribuzione Minima (€)</label>
                     <div class="currency-input"><input type="number" id="ins-ret-min" min="0"></div>
@@ -381,14 +400,6 @@ HTML
                 <div class="form-group">
                     <label>Retribuzione Massima (€)</label>
                     <div class="currency-input"><input type="number" id="ins-ret-max" min="0"></div>
-                </div>
-                <div class="form-group">
-                    <label>Tempo di lavoro</label>
-                    <select id="ins-tempo-lavoro">
-                        <option value="">-- Seleziona --</option>
-                        <option value="Full Time">Full Time</option>
-                        <option value="Part Time">Part Time</option>
-                    </select>
                 </div>
             </div>
 
@@ -403,7 +414,7 @@ HTML
                     </select>
                 </div>
                 <div class="form-group hidden" id="sub-contratto-det-group">
-                    <label>Specifiche Tempo Determinato</label>
+                    <label id="sub-contratto-label">Specifiche Contratto</label>
                     <select id="ins-sub-contratto">
                         <option value="">-- Seleziona specifica --</option>
                         <option value="Sostituzione">Sostituzione</option>
@@ -413,6 +424,14 @@ HTML
                 <div class="form-group hidden" id="tempistica-contratto-group">
                     <label>Durata / Tempistica prevista</label>
                     <input type="text" id="ins-tempistica" placeholder="Es. 6 mesi, sostituzione maternità...">
+                </div>
+                <div class="form-group">
+                    <label>Tempo di lavoro</label>
+                    <select id="ins-tempo-lavoro">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Full Time">Full Time</option>
+                        <option value="Part Time">Part Time</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Sede di lavoro</label>
@@ -473,7 +492,7 @@ HTML
                 <thead>
                     <tr>
                         <th>Posizione / Azienda</th>
-                        <th>Agenzia / Portale</th>
+                        <th>Portale (Princ / Sec)</th>
                         <th>Data Risposta</th>
                         <th>Contratto</th>
                         <th>Sede</th>
@@ -542,7 +561,7 @@ HTML
         
         const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '', esito: 'In fase di valutazione' });
         const defaultInvioDetails = () => ({
-            contatto: '', modalita: '', letter: '', stato: '', dataStato: '',
+            contatto: '', modalita: '', lettera: '', stato: '', dataStato: '',
             colloqui: [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()]
         });
 
@@ -804,20 +823,23 @@ HTML
             const val = document.getElementById('ins-tipo-contratto').value;
             const detGroup = document.getElementById('sub-contratto-det-group');
             const tempGroup = document.getElementById('tempistica-contratto-group');
+            const label = document.getElementById('sub-contratto-label');
             
-            // Gestione sottotendina per Tempo Determinato
-            if(val === "Tempo determinato") {
+            // Gestione Dinamica Sottotendina
+            if(val === "Tempo determinato" || val === "Contratto somministrazione") {
                 detGroup.classList.remove('hidden');
+                tempGroup.classList.remove('hidden');
+                
+                // Calibra il titolo in base alla selezione
+                if(val === "Tempo determinato") {
+                    label.innerText = "Specifiche Tempo Determinato";
+                } else {
+                    label.innerText = "Specifiche Contratto Somministrazione";
+                }
             } else {
                 detGroup.classList.add('hidden');
-                document.getElementById('ins-sub-contratto').value = "";
-            }
-
-            // Gestione campo manuale Tempistica per Determinato o Somministrazione
-            if(val === "Tempo determinato" || val === "Contratto somministrazione") {
-                tempGroup.classList.remove('hidden');
-            } else {
                 tempGroup.classList.add('hidden');
+                document.getElementById('ins-sub-contratto').value = "";
                 document.getElementById('ins-tempistica').value = "";
             }
         }
@@ -845,7 +867,7 @@ HTML
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${item.posizione}</strong><br><small>${item.aziendaRichiedente || 'Azienda Anonima'}</small></td>
-                    <td>${item.portale}</td>
+                    <td>P: ${item.portale}${item.portaleSec ? ` <br><small>S: ${item.portaleSec}</small>` : ''}</td>
                     <td>${formatDate(item.dataRisposta)}</td>
                     <td>${item.tipoContratto || '-'}${item.subContratto ? ` (${item.subContratto})` : ''}${item.tempistica ? ` - ${item.tempistica}` : ''}</td>
                     <td>${item.sede || '-'}</td>
@@ -880,6 +902,7 @@ HTML
             const dataObject = {
                 dataRisposta: document.getElementById('ins-data-risposta').value,
                 portale: document.getElementById('ins-portale').value,
+                portaleSec: document.getElementById('ins-portale-sec').value,
                 aziendaRichiedente: document.getElementById('ins-azienda-richiedente').value,
                 posizione: document.getElementById('ins-posizione').value,
                 retMin: document.getElementById('ins-ret-min').value,
@@ -910,6 +933,7 @@ HTML
             
             document.getElementById('ins-data-risposta').value = item.dataRisposta || '';
             document.getElementById('ins-portale').value = item.portale || '';
+            document.getElementById('ins-portale-sec').value = item.portaleSec || '';
             document.getElementById('ins-azienda-richiedente').value = item.aziendaRichiedente || '';
             document.getElementById('ins-posizione').value = item.posizione || '';
             document.getElementById('ins-ret-min').value = item.retMin || '';
