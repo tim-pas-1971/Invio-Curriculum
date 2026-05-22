@@ -1,3 +1,10 @@
+Sei stata chiarissima e hai fatto benissimo a darmelo come specifica! Nella realtà dei processi di selezione, soprattutto per alcune aziende o istituti, l'iter può prevedere più step di valutazione (un primo filtro conoscitivo, un colloquio tecnico, uno con la direzione, ecc.). Gestire fino a 4 colloqui indipendenti all'interno dello stesso invio è una soluzione eccellente.
+
+Per farlo graficamente senza creare confusione, ho riorganizzato la sezione all'interno del pannello "Dettagli". Adesso, se selezioni "Riscontro positivo", compare la sezione "Colloqui Fissati" con 4 pulsanti ordinati (1° Colloquio, 2° Colloquio, ecc.). Cliccando sul pulsante del rispettivo colloquio, si espandono tutti i campi specifici (Tipo, Data, Ora, Persona, Telefono, Mail) solo per quel colloquio.
+
+Ecco il codice completo aggiornato con questa nuova logica a 4 livelli. Sostituisci interamente il codice dentro il tuo file index.html su GitHub con questo:
+
+HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -12,9 +19,6 @@
             --card-bg: #ffffff;
             --text-color: #333333;
             --border-color: #dddddd;
-            --positive-color: #d4edda;
-            --negative-color: #f8d7da;
-            --archive-color: #e2e3e5;
         }
 
         * {
@@ -113,7 +117,7 @@
             align-items: flex-end;
         }
 
-        btn, button {
+        button {
             cursor: pointer;
             padding: 8px 15px;
             border: none;
@@ -170,9 +174,9 @@
             background: white;
             padding: 25px;
             border-radius: 8px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
+            width: 95%;
+            max-width: 850px;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
@@ -186,12 +190,38 @@
             padding-bottom: 10px;
         }
 
-        .sub-section {
+        /* Sezione Colloqui */
+        .section-colloqui {
             background: #f0f7ff;
             padding: 15px;
             border-radius: 6px;
-            margin-top: 15px;
+            margin-top: 20px;
             border: 1px solid #b8daff;
+        }
+
+        .colloqui-tabs {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .coll-tab-btn {
+            background: #ced4da;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .coll-tab-btn.active {
+            background: #0056b3;
+            color: white;
+        }
+
+        .panel-coll {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            margin-top: 5px;
         }
 
         .hidden { display: none !important; }
@@ -205,7 +235,7 @@
     </header>
 
     <nav>
-        <button class="nav-btn active" onclick="switchTab('autocandidature')">Autocandidature</button>
+        <button class="nav-btn active">Autocandidature</button>
         <button class="nav-btn" onclick="alert('Sezione Inserzioni: Configurazione futura')">Risposta Inserzioni</button>
         <button class="nav-btn" onclick="alert('Sezione Ricerca: Configurazione futura')">Ricerca Avanzata</button>
         <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
@@ -216,7 +246,6 @@
         <form id="app-form" onsubmit="saveData(event)">
             <input type="hidden" id="edit-index" value="">
             
-            <!-- Anagrafica Fissa -->
             <div class="grid-4">
                 <div class="form-group">
                     <label>Azienda / Ente / Scuola *</label>
@@ -236,7 +265,6 @@
                 </div>
             </div>
 
-            <!-- Sezione Date Invio -->
             <div class="grid-3">
                 <div class="form-group">
                     <label>Data 1° Invio</label>
@@ -264,7 +292,6 @@
             <button type="submit" class="btn-accent">Salva Scheda Azienda</button>
         </form>
 
-        <!-- Tabella di Visualizzazione -->
         <div class="table-responsive">
             <h3>Registro Autocandidature</h3>
             <table>
@@ -279,14 +306,11 @@
                         <th>Azioni</th>
                     </tr>
                 </thead>
-                <tbody id="data-table-body">
-                    <!-- I dati inseriti compariranno qui dinamicamente -->
-                </tbody>
+                <tbody id="data-table-body"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- MODALE DETTAGLI INVIO (Dinamica) -->
     <div id="details-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -317,7 +341,7 @@
 
             <div class="form-group">
                 <label>Stato Invio</label>
-                <select id="det-stato" onchange="toggleColloquioSection()">
+                <select id="det-stato" onchange="toggleColloquiSection()">
                     <option value="">-- Seleziona Stato --</option>
                     <option value="Riscontro positivo">Riscontro positivo</option>
                     <option value="Riscontro negativo">Riscontro negativo</option>
@@ -330,62 +354,37 @@
                 <input type="date" id="det-data-stato">
             </div>
 
-            <!-- Sotto-sezione Colloquio Dinamica -->
-            <div id="colloquio-section" class="sub-section hidden">
-                <h4>Dettagli 1° Colloquio</h4>
-                <div class="grid-4" style="margin-top: 10px;">
-                    <div class="form-group">
-                        <label>Tipo colloquio</label>
-                        <select id="coll-tipo">
-                            <option value="telefonico">Telefonico</option>
-                            <option value="on line">On-line</option>
-                            <option value="di persona">Di persona</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Data</label>
-                        <input type="date" id="coll-data">
-                    </div>
-                    <div class="form-group">
-                        <label>Ora</label>
-                        <input type="time" id="coll-ora">
-                    </div>
-                    <div class="form-group">
-                        <label>Indirizzo (se di persona)</label>
-                        <input type="text" id="coll-indirizzo">
-                    </div>
+            <div id="section-colloqui" class="section-colloqui hidden">
+                <h4>Sezione Colloqui</h4>
+                <p style="font-size: 12px; color: #555;">Compila la data di un colloquio per attivare i relativi dettagli.</p>
+                
+                <div class="colloqui-tabs">
+                    <button type="button" class="coll-tab-btn active" onclick="switchCollTab(1)">1° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" onclick="switchCollTab(2)">2° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" onclick="switchCollTab(3)">3° Colloquio</button>
+                    <button type="button" class="coll-tab-btn" onclick="switchCollTab(4)">4° Colloquio</button>
                 </div>
-                <div class="grid-4">
-                    <div class="form-group">
-                        <label>Persona da incontrare</label>
-                        <input type="text" id="coll-nominativo">
+
+                <div id="panel-coll-container">
                     </div>
-                    <div class="form-group">
-                        <label>Telefono referente</label>
-                        <input type="tel" id="coll-tel">
-                    </div>
-                    <div class="form-group">
-                        <label>Mail referente</label>
-                        <input type="email" id="coll-mail">
-                    </div>
-                </div>
             </div>
 
-            <button type="button" class="btn-primary" style="margin-top:15px; width:100%;" onclick="saveDetailsContexual()">Conferma e Salva Dettagli Invio</button>
+            <button type="button" class="btn-primary" style="margin-top:25px; width:100%;" onclick="saveDetailsContextual()">Conferma e Salva Dettagli Invio</button>
         </div>
     </div>
 
     <script>
-        // Database in memoria locale
         let elencoCandidature = JSON.parse(localStorage.getItem('track_autocandidature')) || [];
         
-        // Struttura di default per i dettagli di un singolo invio
+        // Struttura di un singolo colloquio
+        const defaultColloquio = () => ({ data: '', tipo: 'telefonico', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '' });
+
+        // Struttura di un invio con 4 colloqui array-based
         const defaultInvioDetails = () => ({
             contatto: '', modalita: '', lettera: '', stato: '', dataStato: '',
-            colloquio: { tipo: 'telefonico', data: '', ora: '', indirizzo: '', nominativo: '', tel: '', mail: '' }
+            colloqui: [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()]
         });
 
-        // Oggetto temporaneo per l'azienda corrente in modifica/inserimento sul form primario
         let currentDetailsBuffer = {
             invio1: defaultInvioDetails(),
             invio2: defaultInvioDetails(),
@@ -394,12 +393,64 @@
 
         window.onload = function() {
             renderTable();
+            buildColloquiPanelsHTML();
         };
+
+        // Genera la struttura HTML interna per i 4 pannelli colloquio
+        function buildColloquiPanelsHTML() {
+            const container = document.getElementById('panel-coll-container');
+            container.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                const div = document.createElement('div');
+                div.id = `panel-coll-${i}`;
+                div.className = `panel-coll ${i > 1 ? 'hidden' : ''}`;
+                div.innerHTML = `
+                    <div class="form-group">
+                        <label>Data ${i}° Colloquio</label>
+                        <input type="date" id="coll-data-${i}" onchange="toggleCollFields(${i})">
+                    </div>
+                    <div id="fields-coll-${i}" class="hidden" style="margin-top:10px;">
+                        <div class="grid-4">
+                            <div class="form-group">
+                                <label>Tipo colloquio</label>
+                                <select id="coll-tipo-${i}">
+                                    <option value="telefonico">Telefonico</option>
+                                    <option value="on line">On-line</option>
+                                    <option value="di persona">Di persona</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Ora</label>
+                                <input type="time" id="coll-ora-${i}">
+                            </div>
+                            <div class="form-group">
+                                <label>Indirizzo (se di persona)</label>
+                                <input type="text" id="coll-indirizzo-${i}">
+                            </div>
+                            <div class="form-group">
+                                <label>Persona da incontrare</label>
+                                <input type="text" id="coll-nominativo-${i}">
+                            </div>
+                        </div>
+                        <div class="grid-4">
+                            <div class="form-group">
+                                <label>Telefono referente</label>
+                                <input type="tel" id="coll-tel-${i}">
+                            </div>
+                            <div class="form-group">
+                                <label>Mail referente</label>
+                                <input type="email" id="coll-mail-${i}">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
 
         function renderTable() {
             const tbody = document.getElementById('data-table-body');
             tbody.innerHTML = '';
-            
             elencoCandidature.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -421,7 +472,6 @@
         function saveData(e) {
             e.preventDefault();
             const index = document.getElementById('edit-index').value;
-            
             const aziendaData = {
                 azienda: document.getElementById('azienda').value,
                 indirizzo: document.getElementById('indirizzo').value,
@@ -434,13 +484,8 @@
                 invio2: currentDetailsBuffer.invio2,
                 invio3: currentDetailsBuffer.invio3
             };
-
-            if (index === "") {
-                elencoCandidature.push(aziendaData);
-            } else {
-                elencoCandidature[index] = aziendaData;
-            }
-
+            if (index === "") { elencoCandidature.push(aziendaData); } 
+            else { elencoCandidature[index] = aziendaData; }
             localStorage.setItem('track_autocandidature', JSON.stringify(elencoCandidature));
             resetMainForm();
             renderTable();
@@ -456,16 +501,14 @@
             document.getElementById('data1').value = item.data1 || '';
             document.getElementById('data2').value = item.data2 || '';
             document.getElementById('data3').value = item.data3 || '';
-            
             currentDetailsBuffer.invio1 = item.invio1 || defaultInvioDetails();
             currentDetailsBuffer.invio2 = item.invio2 || defaultInvioDetails();
             currentDetailsBuffer.invio3 = item.invio3 || defaultInvioDetails();
-            
             document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
         }
 
         function deleteElement(index) {
-            if(confirm("Sei sicura di voler eliminare questa azienda e tutti i suoi invii correlati?")) {
+            if(confirm("Sei sicura di voler eliminare questa azienda?")) {
                 elencoCandidature.splice(index, 1);
                 localStorage.setItem('track_autocandidature', JSON.stringify(elencoCandidature));
                 renderTable();
@@ -475,86 +518,104 @@
         function openDetails(num) {
             document.getElementById('current-details-num').value = num;
             document.getElementById('modal-title').innerText = `Dettagli Relativi al ${num}° Invio`;
+            const detailsObj = currentDetailsBuffer[`invio${num}`] || defaultInvioDetails();
             
-            const detailsObj = currentDetailsBuffer[`invio${num}`];
-            
-            // Popola campi modale
             document.getElementById('det-contatto').value = detailsObj.contatto || '';
             document.getElementById('det-modalita').value = detailsObj.modalita || '';
             document.getElementById('det-lettera').value = detailsObj.lettera || '';
             document.getElementById('det-stato').value = detailsObj.stato || '';
             document.getElementById('det-data-stato').value = detailsObj.dataStato || '';
             
-            // Popola sottosezione colloquio
-            const coll = detailsObj.colloquio || defaultInvioDetails().colloquio;
-            document.getElementById('coll-tipo').value = coll.tipo || 'telefonico';
-            document.getElementById('coll-data').value = coll.data || '';
-            document.getElementById('coll-ora').value = coll.ora || '';
-            document.getElementById('coll-indirizzo').value = coll.indirizzo || '';
-            document.getElementById('coll-nominativo').value = coll.nominativo || '';
-            document.getElementById('coll-tel').value = coll.tel || '';
-            document.getElementById('coll-mail').value = coll.mail || '';
+            // Ripristina i dati dei 4 colloqui nei campi
+            if(!detailsObj.colloqui) detailsObj.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
+            for(let i = 1; i <= 4; i++) {
+                const c = detailsObj.colloqui[i-1] || defaultColloquio();
+                document.getElementById(`coll-data-${i}`).value = c.data || '';
+                document.getElementById(`coll-tipo-${i}`).value = c.tipo || 'telefonico';
+                document.getElementById(`coll-ora-${i}`).value = c.ora || '';
+                document.getElementById(`coll-indirizzo-${i}`).value = c.indirizzo || '';
+                document.getElementById(`coll-nominativo-${i}`).value = c.nominativo || '';
+                document.getElementById(`coll-tel-${i}`).value = c.tel || '';
+                document.getElementById(`coll-mail-${i}`).value = c.mail || '';
+                toggleCollFields(i);
+            }
 
-            toggleColloquioSection();
+            toggleInterviewsTabReset();
+            toggleInterviewsSection();
             document.getElementById('details-modal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('details-modal').style.display = 'none';
+        function toggleCollFields(i) {
+            const dataVal = document.getElementById(`coll-data-${i}`).value;
+            const fieldsDiv = document.getElementById(`fields-coll-${i}`);
+            if(dataVal) { fieldsDiv.classList.remove('hidden'); } 
+            else { fieldsDiv.classList.add('hidden'); }
         }
 
-        function toggleColloquioSection() {
+        function toggleInterviewsSection() {
             const stato = document.getElementById('det-stato').value;
-            const collSection = document.getElementById('colloquio-section');
-            if (stato === "Riscontro positivo") {
-                collSection.classList.remove('hidden');
-            } else {
-                collSection.classList.add('hidden');
+            const section = document.getElementById('section-colloqui');
+            if(stato === "Riscontro positivo") { section.classList.remove('hidden'); } 
+            else { section.classList.add('hidden'); }
+        }
+
+        function switchCollTab(activeNum) {
+            const buttons = document.querySelectorAll('.coll-tab-btn');
+            buttons.forEach((btn, idx) => {
+                if((idx + 1) === activeNum) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            for(let i = 1; i <= 4; i++) {
+                const panel = document.getElementById(`panel-coll-${i}`);
+                if(i === activeNum) panel.classList.remove('hidden');
+                else panel.className = 'panel-coll hidden';
             }
         }
 
-        function saveDetailsContexual() {
+        function toggleInterviewsTabReset() {
+            switchCollTab(1);
+        }
+
+        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
+
+        function saveDetailsContextual() {
             const num = document.getElementById('current-details-num').value;
+            const colloquiSalvati = [];
             
+            for(let i = 1; i <= 4; i++) {
+                colloquiSalvati.push({
+                    data: document.getElementById(`coll-data-${i}`).value,
+                    tipo: document.getElementById(`coll-tipo-${i}`).value,
+                    ora: document.getElementById(`coll-ora-${i}`).value,
+                    indirizzo: document.getElementById(`coll-indirizzo-${i}`).value,
+                    nominativo: document.getElementById(`coll-nominativo-${i}`).value,
+                    tel: document.getElementById(`coll-tel-${i}`).value,
+                    mail: document.getElementById(`coll-mail-${i}`).value
+                });
+            }
+
             currentDetailsBuffer[`invio${num}`] = {
                 contatto: document.getElementById('det-contatto').value,
                 modalita: document.getElementById('det-modalita').value,
                 lettera: document.getElementById('det-lettera').value,
                 stato: document.getElementById('det-stato').value,
                 dataStato: document.getElementById('det-data-stato').value,
-                colloquio: {
-                    tipo: document.getElementById('coll-tipo').value,
-                    data: document.getElementById('coll-data').value,
-                    ora: document.getElementById('coll-ora').value,
-                    indirizzo: document.getElementById('coll-indirizzo').value,
-                    nominativo: document.getElementById('coll-nominativo').value,
-                    tel: document.getElementById('coll-tel').value,
-                    mail: document.getElementById('coll-mail').value
-                }
+                colloqui: colloquiSalvati
             };
             closeModal();
-            alert(`Dettagli salvati temporaneamente per il ${num}° Invio. Ricorda di salvare la scheda azienda per renderli definitivi.`);
+            alert(`Dettagli e colloqui salvati in memoria per il ${num}° Invio. Ricorda di salvare la scheda azienda principale.`);
         }
 
         function resetMainForm() {
             document.getElementById('app-form').reset();
             document.getElementById('edit-index').value = "";
-            currentDetailsBuffer = {
-                invio1: defaultInvioDetails(),
-                invio2: defaultInvioDetails(),
-                invio3: defaultInvioDetails()
-            };
+            currentDetailsBuffer = { invio1: defaultInvioDetails(), invio2: defaultInvioDetails(), invio3: defaultInvioDetails() };
         }
 
         function formatDate(dateStr) {
             if(!dateStr) return '';
             const d = dateStr.split('-');
             return `${d[2]}/${d[1]}/${d[0]}`;
-        }
-
-        function switchTab(tabId) {
-            // Predisposto per gestire le tab future
-            console.log("Navigazione verso: " + tabId);
         }
     </script>
 </body>
