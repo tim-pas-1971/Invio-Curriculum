@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Tracker - Gestione Candidature</title>
+    <title>Gestione Candidature</title>
     <style>
         :root {
-            --primary-color: #2b5797;
-            --accent-color: #00a300;
+            --primary-color: #1e457e;
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-color: #333333;
             --border-color: #dddddd;
-            --ins-color: #e06666;
-            --search-color: #4a69bd;
-            --backup-color: #4b5563;
+            
+            /* Colori Sezioni Richiesti */
+            --btn-auto-color: #1a5296;
+            --btn-ins-color: #ba3c13;
+            --btn-search-color: #8c1991;
+            --btn-charts-color: #1e7d34;
         }
 
         * {
@@ -31,54 +33,107 @@
         }
 
         header {
-            background-color: var(--primary-color);
+            background-color: #223147;
             color: white;
-            padding: 15px 20px;
+            padding: 18px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 26px;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 2px;
         }
 
         .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             gap: 15px;
             flex-wrap: wrap;
         }
 
         nav {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .backup-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
+        /* Styling pulsanti di Navigazione Principali */
         .nav-btn {
-            background: #e0e0e0;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 22px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            opacity: 0.65;
+        }
+
+        .nav-btn:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
         }
 
         .nav-btn.active {
-            background-color: var(--primary-color);
-            color: white;
+            opacity: 1 !important;
+            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.15);
         }
 
-        .btn-backup {
-            background-color: var(--backup-color);
-            color: white;
+        #tab-auto-btn { background-color: var(--btn-auto-color); }
+        #tab-ins-btn { background-color: var(--btn-ins-color); }
+        #tab-search-btn { background-color: var(--btn-search-color); }
+        #tab-charts-btn { background-color: var(--btn-charts-color); opacity: 0.5; } /* Inattivo ma colorato */
+
+        /* Styling Pulsanti Metallici di Backup */
+        .btn-backup-export {
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+            color: #2c3e50;
+            border: 1px solid #7f8c8d;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
         }
-        .btn-backup:hover {
-            background-color: #374151;
+        .btn-backup-export:hover {
+            background: linear-gradient(135deg, #cacfd2 0%, #a6acaf 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-backup-import {
+            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            color: white;
+            border: 1px solid #8a650f;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .btn-backup-import:hover {
+            background: linear-gradient(135deg, #dfba48 0%, #b88616 100%);
+            transform: translateY(-1px);
         }
 
         .container {
@@ -131,11 +186,11 @@
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 15px;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--btn-auto-color);
         }
 
         .grid-3.inserzioni-bar, .grid-4.inserzioni-bar, .grid-6.inserzioni-bar {
-            border-left: 4px solid var(--ins-color);
+            border-left: 4px solid var(--btn-ins-color);
             background: #f9f9f9;
             padding: 15px;
             border-radius: 6px;
@@ -143,7 +198,7 @@
         }
 
         .grid-4.search-bar {
-            border-left: 4px solid var(--search-color);
+            border-left: 4px solid var(--btn-search-color);
             background: #f0f4f8;
             padding: 15px;
             border-radius: 6px;
@@ -170,20 +225,19 @@
             color: #555;
         }
 
-        button {
+        button.action-btn {
             cursor: pointer;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 4px;
             font-weight: bold;
             transition: background 0.2s;
         }
 
-        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary { background-color: #2b5797; color: white; }
         .btn-primary:hover { background-color: #1e3d6b; }
         .btn-accent { background-color: var(--accent-color); color: white; margin-top: 15px; }
-        .btn-accent:hover { background-color: #008200; }
-        .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; }
+        .btn-details { background-color: #6c757d; color: white; padding: 8px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
         .btn-close { background-color: #dc3545; color: white; }
 
         .table-responsive {
@@ -277,6 +331,8 @@
             background: #ced4da;
             padding: 6px 12px;
             font-size: 13px;
+            border: none;
+            cursor: pointer;
         }
 
         .coll-tab-btn.active {
@@ -300,8 +356,8 @@
             color: white;
             border-radius: 3px;
         }
-        .badge-auto { background-color: var(--primary-color); }
-        .badge-ins { background-color: var(--ins-color); }
+        .badge-auto { background-color: var(--btn-auto-color); }
+        .badge-ins { background-color: var(--btn-ins-color); }
 
         .hidden { display: none !important; }
     </style>
@@ -309,8 +365,8 @@
 <body>
 
     <header>
-        <h1>Job Tracker</h1>
-        <p>Monitoraggio e Gestione delle Attività di Candidatura</p>
+        <h1>Gestione Candidature</h1>
+        <p>Monitoraggio e Registro delle Attività di Invio Curriculum</p>
     </header>
 
     <div class="nav-container">
@@ -318,18 +374,18 @@
             <button id="tab-auto-btn" class="nav-btn active" onclick="switchMainTab('autocandidature')">Autocandidature</button>
             <button id="tab-ins-btn" class="nav-btn" onclick="switchMainTab('inserzioni')">Risposta Inserzioni</button>
             <button id="tab-search-btn" class="nav-btn" onclick="switchMainTab('ricerca')">Ricerca Avanzata</button>
-            <button class="nav-btn" onclick="alert('Sezione Grafici: Configurazione futura')">Grafica & Statistiche</button>
+            <button id="tab-charts-btn" class="nav-btn" onclick="alert('Sezione Grafica & Statistiche: Configurazione futura')">Grafica & Statistiche</button>
         </nav>
         
         <div class="backup-actions">
-            <button class="nav-btn btn-backup" onclick="exportDataToJSON()">Esporta Backup (JSON)</button>
-            <button class="nav-btn btn-backup" onclick="document.getElementById('import-file-input').click()">Importa Backup (JSON)</button>
+            <button class="btn-backup-export" onclick="exportDataToJSON()">Esporta Backup (JSON) 📥</button>
+            <button class="btn-backup-import" onclick="document.getElementById('import-file-input').click()">Importa Backup (JSON) 📤</button>
             <input type="file" id="import-file-input" class="hidden" accept=".json" onchange="importDataFromJSON(event)">
         </div>
     </div>
 
     <div id="autocandidature-tab" class="container">
-        <h2>Nuova Autocandidatura</h2>
+        <h2 style="color: var(--btn-auto-color); margin-bottom: 15px;">Nuova Autocandidatura</h2>
         <form id="app-form" onsubmit="saveDataAuto(event)">
             <input type="hidden" id="edit-index-auto" value="">
             
@@ -376,7 +432,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-accent">Salva Scheda Azienda</button>
+            <button type="submit" class="action-btn" style="background-color: var(--btn-auto-color); color: white; margin-top:10px;">Salva Scheda Azienda</button>
         </form>
 
         <div class="table-responsive">
@@ -399,7 +455,7 @@
     </div>
 
     <div id="inserzioni-tab" class="container hidden">
-        <h2>Nuova Risposta a Inserzione</h2>
+        <h2 style="color: var(--btn-ins-color); margin-bottom: 15px;">Nuova Risposta a Inserzione</h2>
         <form id="ins-form" onsubmit="saveDataIns(event)">
             <input type="hidden" id="edit-index-ins" value="">
 
@@ -581,7 +637,7 @@
                 <textarea id="ins-note" placeholder="Inserisci qui valutazioni, feedback o promemoria liberi..."></textarea>
             </div>
 
-            <button type="submit" class="btn-accent" style="background-color: var(--ins-color); margin-top: 15px;">Salva Scheda Inserzione</button>
+            <button type="submit" class="action-btn" style="background-color: var(--btn-ins-color); color: white; margin-top: 15px;">Salva Scheda Inserzione</button>
         </form>
 
         <div class="table-responsive">
@@ -604,7 +660,7 @@
     </div>
 
     <div id="ricerca-tab" class="container hidden">
-        <h2>Pannello Ricerca Avanzata</h2>
+        <h2 style="color: var(--btn-search-color); margin-bottom: 15px;">Pannello Ricerca Avanzata</h2>
         <p style="font-size:13px; color:#555; margin-bottom:15px;">I risultati si aggiornano automaticamente modificando i filtri sottostanti. Clicca sulle intestazioni della tabella per ordinare i dati.</p>
         
         <div class="grid-4 search-bar">
@@ -752,7 +808,7 @@
                 </div>
                 <div id="panel-coll-container"></div>
             </div>
-            <button type="button" class="btn-primary" style="margin-top:25px; width:100%;" onclick="saveDetailsContextualAuto()">Conferma e Salva Dettagli Invio</button>
+            <button type="button" class="btn-primary" style="margin-top:25px; width:100%; padding:10px 0; border:none; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="saveDetailsContextualAuto()">Conferma e Salva Dettagli Invio</button>
         </div>
     </div>
 
@@ -897,8 +953,8 @@
                     <td>${item.data2 ? formatDate(item.data2) : '-'} ${item.invio2?.stato ? `<br><small>(${item.invio2.stato})</small>` : ''}</td>
                     <td>${item.data3 ? formatDate(item.data3) : '-'} ${item.invio3?.stato ? `<br><small>(${item.invio3.stato})</small>` : ''}</td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadEditAuto(${index})">Modifica</button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteAuto(${index})">Elimina</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="loadEditAuto(${index})">Modifica</button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteAuto(${index})">Elimina</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1084,8 +1140,8 @@
                     <td>${item.sede || '-'}</td>
                     <td><strong>${item.stato || 'Non impostato'}</strong>${item.dataStato ? `<br><small>al ${formatDate(item.dataStato)}</small>` : ''}</td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--ins-color);" onclick="loadEditIns(${index})">Modifica</button>
-                        <button class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteIns(${index})">Elimina</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:12px; background-color:var(--btn-ins-color); border:none; border-radius:4px; cursor:pointer;" onclick="loadEditIns(${index})">Modifica</button>
+                        <button class="btn-close" style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer;" onclick="deleteIns(${index})">Elimina</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1332,7 +1388,7 @@
                     <td><small>${item.fonte}</small></td>
                     <td><small>${item.stato}</small></td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Vedi/Modifica</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:11px; border:none; border-radius:4px; cursor:pointer;" onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Vedi/Modifica</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1372,7 +1428,7 @@
         }
 
         // ==========================================
-        // PARTE 4: LOGICA DI BACKUP EXPORT / IMPORT (NUOVA)
+        // PARTE 4: LOGICA DI BACKUP
         // ==========================================
         function exportDataToJSON() {
             const backupObject = {
@@ -1384,7 +1440,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObject, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "job_tracker_backup.json");
+            downloadAnchor.setAttribute("download", "gestione_candidature_backup.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -1398,37 +1454,29 @@
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    
-                    // Validazione strutturale minima prima di sovrascrivere
                     if (importedData && (importedData.autocandidature || importedData.inserzioni)) {
-                        if (confirm("Attenzione: caricando questo file, le candidature attualmente presenti nel browser verranno sostituite con quelle del backup. Vuoi procedere?")) {
-                            
+                        if (confirm("Attenzione: caricando questo file, le candidature attualmente presenti verranno sovrascritte. Vuoi procedere?")) {
                             elencoAuto = importedData.autocandidature || [];
                             elencoIns = importedData.inserzioni || [];
-                            
                             localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
                             localStorage.setItem('track_inserzioni', JSON.stringify(elencoIns));
-                            
-                            // Aggiorna visivamente tutta l'applicazione
                             renderTableAuto();
                             renderTableIns();
                             executeSearch();
-                            
-                            alert("Importazione completata con successo! Dati aggiornati.");
+                            alert("Backup importato con successo!");
                         }
                     } else {
-                        alert("Errore: Il formato del file JSON non sembra essere un backup valido di Job Tracker.");
+                        alert("Errore: Formato file non valido.");
                     }
                 } catch (err) {
-                    alert("Errore durante la lettura del file: assicurati che sia un file JSON valido.");
-                    console.error(err);
+                    alert("Errore durante l'importazione.");
                 }
-                // Resetta l'input per permettere lo stesso file due volte di fila
                 event.target.value = '';
             };
             reader.readAsText(file);
         }
 
+        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         function formatDate(dateStr) {
             if(!dateStr) return '';
             const d = dateStr.split('-');
