@@ -1475,7 +1475,8 @@
                     <td><small>${item.fonte}</small></td>
                     <td><small>${item.stato}</small></td>
                     <td>
-                        <button class="btn-primary" style="padding:4px 8px; font-size:11px; border:none; border-radius:4px; cursor:pointer;" onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Apri</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:11px; border:none; border-radius:4px; cursor:pointer;" 
+        onclick="goToRecordAndEdit('${item.tabTarget}', ${item.originalIndex})">Apri</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1586,35 +1587,74 @@
 // Funzione che legge il file Excel
 function handleExcelImport(e) {
     const file = e.target.files[0];
+    if (!file) return;
+    
     const reader = new FileReader();
     reader.onload = function(evt) {
         const data = new Uint8Array(evt.target.result);
         const workbook = XLSX.read(data, {type: 'array'});
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
         
-        const nuoveCandidature = rows.map(row => ({
-            azienda: row['Azienda / Ente / Scuola'] || 'N/A',
-            indirizzo: row['Indirizzo'] || '',
-            comune: row['Comune'] || '',
-            km: row['Km Sede'] || 0,
-            telefono: row['Telefono di riferimento'] || '',
-            settore: normalizzaSettore(row['Settore Merceologico']),
-            // Ora leggiamo correttamente le colonne dal CSV
-            data1: row['Data 1° Invio'] || '',
-            invio1: row['Contatto di riferimento (Mail / Nominativo)'] || '',
-            data2: row['Data 2° Invio'] || '',
-            invio2: row['Contatto di riferimento (Mail / Nominativo)_1'] || '', // Verifica se Excel rinomina la colonna duplicata
-            data3: "", invio3: ""
-        }));
+        let conteggioAggiornati = 0;
+        let conteggioNuovi = 0;
         
-        elencoAuto = [...elencoAuto, ...nuoveCandidature];
+        rows.forEach(row => {
+            const nomeAzienda = row['Azienda / Ente / Scuola'] || 'N/A';
+            const indexEsistente = elencoAuto.findIndex(a => a.azienda.toLowerCase() === nomeAzienda.toLowerCase());
+            
+            const datiAggiornati = {
+                azienda: nomeAzienda,
+                indirizzo: row['Indirizzo'] || '',
+                comune: row['Comune'] || '',
+                km: row['Km Sede'] || 0,
+                telefono: row['Telefono di riferimento'] || '',
+                settore: normalizzaSettore(row['Settore Merceologico']),
+                // Ora leggiamo i nomi esatti delle colonne che hai impostato
+                data1: row['Data 1° Invio'] || '',
+                invio1: { 
+                    contatto: row['1° Invio _ Mail / Nominativo'] || '', 
+                    stato: row['Data 1° Invio'] ? 'Inviato' : '' 
+                },
+                data2: row['Data 2° Invio'] || '',
+                invio2: { 
+                    contatto: row['2° Invio _ Mail / Nominativo'] || '', 
+                    stato: row['Data 2° Invio'] ? 'Inviato' : '' 
+                },
+                data3: row['Data 3° Invio'] || '',
+                invio3: { 
+                    contatto: row['3° Invio _ Mail / Nominativo'] || '', 
+                    stato: row['Data 3° Invio'] ? 'Inviato' : '' 
+                }
+            };
+
+            if (indexEsistente !== -1) {
+                // Aggiorna solo se l'azienda esiste già
+                elencoAuto[indexEsistente] = { ...elencoAuto[indexEsistente], ...datiAggiornati };
+                conteggioAggiornati++;
+            } else {
+                // Aggiunge se è nuova
+                elencoAuto.push(datiAggiornati);
+                conteggioNuovi++;
+            }
+        });
+        
         localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
         renderTableAuto();
-        alert("Importati " + nuoveCandidature.length + " record completi!");
+        alert(`Importazione completata: ${conteggioNuovi} nuove, ${conteggioAggiornati} aggiornate.`);
     };
     reader.readAsArrayBuffer(file);
-}       
+}
+        function goToRecordAndEdit(tab, index) {
+    // 1. Cambia la tab visibile
+    switchMainTab(tab);
+    
+    // 2. Apri il record corretto
+    if(tab === 'autocandidature') {
+        loadEditAuto(index);
+    } else if(tab === 'inserzioni') {
+        loadEditIns(index);
+    }
+}
     </script>
 </body>
 </html>
