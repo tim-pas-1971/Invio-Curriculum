@@ -1074,37 +1074,35 @@
         }
 
         function loadEditAuto(index) {
+    console.log("Tentativo di modifica per il record indice:", index);
     const item = elencoAuto[index];
-    document.getElementById('edit-index-auto').value = index;
-    document.getElementById('azienda').value = item.azienda;
-    document.getElementById('indirizzo').value = item.indirizzo || '';
-    document.getElementById('comune').value = item.comune;
-    document.getElementById('telefono').value = item.telefono || '';
-    document.getElementById('km').value = item.km || '';
-    document.getElementById('settore').value = item.settore || '';
-
-    // AGGIORNAMENTO: Funzione interna per forzare il formato aaaa-mm-gg
-    const forceDate = (d) => {
-        if (!d || d === '-') return '';
-        // Se è già aaaa-mm-gg, lascialo così
-        if (d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
-        // Se è gg/mm/aaaa, convertilo
-        if (d.includes('/')) {
-            const p = d.split('/');
-            return `${p[2]}-${p[1]}-${p[0]}`;
-        }
-        return d;
-    };
-
-    document.getElementById('data1').value = forceDate(item.data1);
-    document.getElementById('data2').value = forceDate(item.data2);
-    document.getElementById('data3').value = forceDate(item.data3);
-
-    currentDetailsBufferAuto.invio1 = item.invio1 || defaultInvioDetails();
-    currentDetailsBufferAuto.invio2 = item.invio2 || defaultInvioDetails();
-    currentDetailsBufferAuto.invio3 = item.invio3 || defaultInvioDetails();
     
-    document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
+    if (!item) {
+        alert("Errore: Impossibile trovare il record. Forse la lista è vuota?");
+        return;
+    }
+
+    console.log("Dati recuperati:", item);
+
+    try {
+        document.getElementById('edit-index-auto').value = index;
+        document.getElementById('azienda').value = item.azienda || '';
+        document.getElementById('indirizzo').value = item.indirizzo || '';
+        document.getElementById('comune').value = item.comune || '';
+        document.getElementById('telefono').value = item.telefono || '';
+        document.getElementById('km').value = item.km || '';
+        document.getElementById('settore').value = item.settore || '';
+
+        // Caricamento date
+        document.getElementById('data1').value = item.data1 || '';
+        document.getElementById('data2').value = item.data2 || '';
+        document.getElementById('data3').value = item.data3 || '';
+
+        document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
+        console.log("Modifica caricata con successo!");
+    } catch (err) {
+        console.error("Errore durante il caricamento dei campi:", err);
+    }
 }
 
         function deleteAuto(index) {
