@@ -1592,32 +1592,22 @@
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         
         function formatDate(dateStr) {
-    // 1. Se il dato è vuoto, restituiamo un trattino
-    if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) {
-        return '-';
-    }
+    if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) return '-';
+    
+    // Se è già gg/mm/aaaa, restituisci così com'è
+    if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr;
 
-    // 2. Se è già formato gg/mm/aaaa, restituiamo così com'è
-    if (typeof dateStr === 'string' && dateStr.includes('/')) {
-        return dateStr;
-    }
-
-    // 3. Se è nel formato anno-mese-giorno (es. 26-2-3 oppure 2026-03-02)
+    // Se è nel formato anno-mese-giorno (es. 26-2-3)
     if (typeof dateStr === 'string' && dateStr.includes('-')) {
         const parts = dateStr.split('-');
         if (parts.length === 3) {
-            // Gestione anno: se è '26' diventa '2026', se è '2026' resta '2026'
+            // parts[0] è l'anno, parts[1] è il giorno, parts[2] è il mese (nel tuo caso invertito)
             const anno = parts[0].length === 2 ? '20' + parts[0] : parts[0];
-            
-            // Gestione mese e giorno: forziamo sempre le 2 cifre (es. '2' diventa '02')
-            const mese = parts[1].padStart(2, '0');
-            const giorno = parts[2].padStart(2, '0');
-            
-            // Ritorniamo Giorno / Mese / Anno
+            const giorno = parts[1].padStart(2, '0');
+            const mese = parts[2].padStart(2, '0');
             return `${giorno}/${mese}/${anno}`;
         }
     }
-
     return String(dateStr);
 }
         // Funzione per pulire e uniformare i settori automaticamente
