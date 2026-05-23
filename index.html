@@ -1073,9 +1073,25 @@
             renderTableAuto();
         }
 
-        function loadEditAuto(index) {
+        {
     const item = elencoAuto[index];
     if (!item) return;
+
+    const normalizeForInput = (d) => {
+        if (!d || d === '-') return '';
+        // Se è già aaaa-mm-gg
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+        
+        // Se è 26-2-3 (anno-giorno-mese come sembra nel tuo DB)
+        const p = d.split('-');
+        if (p.length === 3) {
+            const y = p[0].length === 2 ? '20' + p[0] : p[0];
+            const d_day = p[1].padStart(2, '0'); // Il giorno era al centro
+            const m_month = p[2].padStart(2, '0'); // Il mese era alla fine
+            return `${y}-${m_month}-${d_day}`;
+        }
+        return '';
+    };
 
     document.getElementById('edit-index-auto').value = index;
     document.getElementById('azienda').value = item.azienda || '';
@@ -1085,32 +1101,14 @@
     document.getElementById('km').value = item.km || '';
     document.getElementById('settore').value = item.settore || '';
 
-    // --- CORREZIONE DATA ---
-    // Questa funzione serve SOLO per riempire gli input di tipo date
-    // Il browser accetta SOLO il formato aaaa-mm-gg
-    const normalizeDateForInput = (d) => {
-        if (!d || d === '-' || d === 'undefined') return '';
-        // Se è già aaaa-mm-gg (es. 2026-05-23)
-        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-        // Se è gg/mm/aaaa (es. 23/05/2026)
-        if (d.includes('/')) {
-            const p = d.split('/');
-            if (p.length === 3) return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-        }
-        return '';
-    };
-
-    document.getElementById('data1').value = normalizeDateForInput(item.data1);
-    document.getElementById('data2').value = normalizeDateForInput(item.data2);
-    document.getElementById('data3').value = normalizeDateForInput(item.data3);
-
-    currentDetailsBufferAuto.invio1 = item.invio1 || {contatto: '', stato: ''};
-    currentDetailsBufferAuto.invio2 = item.invio2 || {contatto: '', stato: ''};
-    currentDetailsBufferAuto.invio3 = item.invio3 || {contatto: '', stato: ''};
+    // Assegnazione date pulita
+    document.getElementById('data1').value = normalizeForInput(item.data1);
+    document.getElementById('data2').value = normalizeForInput(item.data2);
+    document.getElementById('data3').value = normalizeForInput(item.data3);
 
     document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
 }
-
+        
         function deleteAuto(index) {
             if(confirm("Eliminare questa scheda autocandidatura?")) {
                 elencoAuto.splice(index, 1);
