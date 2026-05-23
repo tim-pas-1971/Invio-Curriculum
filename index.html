@@ -455,7 +455,7 @@
             <button class="btn-backup-import" style="background:#27ae60" onclick="document.getElementById('xlsx-input').click()">
     <i class="fa-solid fa-file-excel"></i> Importa Excel
 </button>
-<input type="file" id="xlsx-input" class="hidden" accept=".xlsx" onchange="handleExcelImport(event)">
+<input type="file" id="xlsx-input" class="hidden" accept=".xlsx" onchange="(event)">
         </div>
     </div>
 
@@ -1602,14 +1602,25 @@ function handleExcelImport(e) {
         
         // Funzione per convertire data italiana (gg/mm/aaaa) in formato standard (aaaa-mm-gg)
         const parseDate = (d) => {
-            if (!d) return '';
-            // Se è già formato aaaa-mm-gg
-            if (d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
-            // Se è formato gg/mm/aaaa
-            const parts = d.split('/');
-            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            return d;
-        };
+    if (!d) return '';
+
+    // 1. Se Excel la passa come numero (formato data interno)
+    if (!isNaN(d) && typeof d === 'number') {
+        const dateObj = new Date((d - 25569) * 86400 * 1000);
+        return dateObj.toISOString().split('T')[0];
+    }
+
+    // 2. Se è una stringa in formato gg/mm/aaaa (il tuo caso)
+    if (typeof d === 'string' && d.includes('/')) {
+        const parts = d.split('/');
+        if (parts.length === 3) {
+            // Ritorna aaaa-mm-gg
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+    }
+    
+    return d; // Ritorna il dato così com'è se non lo riconosce
+};
         
         let conteggioAggiornati = 0;
         let conteggioNuovi = 0;
