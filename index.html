@@ -1118,33 +1118,43 @@ function loadEditAuto(index) {
         }
 
         function openDetailsAuto(num) {
-            document.getElementById('current-details-num').value = num;
-            document.getElementById('modal-title').innerText = `Dettagli Relativi al ${num}° Invio`;
-            const obj = currentDetailsBufferAuto[`invio${num}`] || defaultInvioDetails();
-            
-            document.getElementById('det-contatto').value = obj.contatto || '';
-            document.getElementById('det-modalita').value = obj.modalita || '';
-            document.getElementById('det-lettera').value = obj.lettera || '';
-            document.getElementById('det-stato').value = obj.stato || '';
-            document.getElementById('det-data-stato').value = obj.dataStato || '';
-            
-            if(!obj.colloqui) obj.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
-            for(let i = 1; i <= 4; i++) {
-                const c = obj.colloqui[i-1] || defaultColloquio();
-                document.getElementById(`auto-coll-data-${i}`).value = c.data || '';
-                document.getElementById(`auto-coll-tipo-${i}`).value = c.tipo || 'telefonico';
-                document.getElementById(`auto-coll-ora-${i}`).value = c.ora || '';
-                document.getElementById(`auto-coll-indirizzo-${i}`).value = c.indirizzo || '';
-                document.getElementById(`auto-coll-nominativo-${i}`).value = c.nominativo || '';
-                document.getElementById(`auto-coll-tel-${i}`).value = c.tel || '';
-                document.getElementById(`auto-coll-mail-${i}`).value = c.mail || '';
-                document.getElementById(`auto-coll-esito-${i}`).value = c.esito || 'In fase di valutazione';
-                toggleCollFieldsGeneric('auto', i);
-            }
-            switchAutoCollTab(1);
-            toggleAutoInterviewsSection();
-            document.getElementById('details-modal').style.display = 'flex';
-        }
+    // 1. Recuperiamo l'indice dell'azienda correntemente aperta
+    const index = document.getElementById('edit-index-auto').value;
+    
+    // 2. Se abbiamo un indice valido, carichiamo i dati aggiornati nel buffer
+    if (index !== "" && elencoAuto[index]) {
+        currentDetailsBufferAuto[`invio${num}`] = elencoAuto[index][`invio${num}`] || defaultInvioDetails();
+    }
+
+    document.getElementById('current-details-num').value = num;
+    document.getElementById('modal-title').innerText = `Dettagli Relativi al ${num}° Invio`;
+    const obj = currentDetailsBufferAuto[`invio${num}`] || defaultInvioDetails();
+    
+    // 3. Riempimento campi nel modale
+    document.getElementById('det-contatto').value = obj.contatto || '';
+    document.getElementById('det-modalita').value = obj.modalita || '';
+    document.getElementById('det-stato').value = obj.stato || '';
+    document.getElementById('det-data-stato').value = obj.dataStato || '';
+    
+    // 4. Gestione colloqui
+    if(!obj.colloqui) obj.colloqui = [defaultColloquio(), defaultColloquio(), defaultColloquio(), defaultColloquio()];
+    for(let i = 1; i <= 4; i++) {
+        const c = obj.colloqui[i-1] || defaultColloquio();
+        document.getElementById(`auto-coll-data-${i}`).value = c.data || '';
+        document.getElementById(`auto-coll-tipo-${i}`).value = c.tipo || 'telefonico';
+        document.getElementById(`auto-coll-ora-${i}`).value = c.ora || '';
+        document.getElementById(`auto-coll-indirizzo-${i}`).value = c.indirizzo || '';
+        document.getElementById(`auto-coll-nominativo-${i}`).value = c.nominativo || '';
+        document.getElementById(`auto-coll-tel-${i}`).value = c.tel || '';
+        document.getElementById(`auto-coll-mail-${i}`).value = c.mail || '';
+        document.getElementById(`auto-coll-esito-${i}`).value = c.esito || 'In fase di valutazione';
+        toggleCollFieldsGeneric('auto', i);
+    }
+    
+    switchAutoCollTab(1);
+    toggleAutoInterviewsSection();
+    document.getElementById('details-modal').style.display = 'flex';
+}
 
         function toggleAutoInterviewsSection() {
             const s = document.getElementById('det-stato').value;
