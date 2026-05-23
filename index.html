@@ -1050,29 +1050,30 @@
 }
 
         function saveDataAuto(e) {
-            e.preventDefault();
-            const index = document.getElementById('edit-index-auto').value;
-            const data = {
-                azienda: document.getElementById('azienda').value,
-                indirizzo: document.getElementById('indirizzo').value,
-                comune: document.getElementById('comune').value,
-                telefono: document.getElementById('telefono').value,
-                km: document.getElementById('km').value,
-                settore: document.getElementById('settore').value,
-                data1: document.getElementById('data1').value,
-                data2: document.getElementById('data2').value,
-                data3: document.getElementById('data3').value,
-                invio1: currentDetailsBufferAuto.invio1,
-                invio2: currentDetailsBufferAuto.invio2,
-                invio3: currentDetailsBufferAuto.invio3
-            };
-            if(index === "") elencoAuto.push(data);
-            else elencoAuto[index] = data;
-            localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
-            resetFormAuto();
-            renderTableAuto();
-        }
+    e.preventDefault();
+    const index = document.getElementById('edit-index-auto').value;
+    const data = {
+        azienda: document.getElementById('azienda').value,
+        indirizzo: document.getElementById('indirizzo').value,
+        comune: document.getElementById('comune').value,
+        telefono: document.getElementById('telefono').value,
+        km: document.getElementById('km').value,
+        settore: document.getElementById('settore').value,
+        data1: document.getElementById('data1').value,
+        data2: document.getElementById('data2').value,
+        data3: document.getElementById('data3').value,
+        invio1: currentDetailsBufferAuto.invio1,
+        invio2: currentDetailsBufferAuto.invio2,
+        invio3: currentDetailsBufferAuto.invio3
+    };
+    if(index === "") elencoAuto.push(data);
+    else elencoAuto[index] = data;
+    localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
+    resetFormAuto();
+    renderTableAuto();
+}
 
+function loadEditAuto(index) {
     const item = elencoAuto[index];
     if (!item) return;
 
@@ -1081,13 +1082,13 @@
         // Se è già aaaa-mm-gg
         if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
         
-        // Se è 26-2-3 (anno-giorno-mese come sembra nel tuo DB)
+        // Se è il formato strano del DB: parts[0]=anno, parts[1]=giorno, parts[2]=mese
         const p = d.split('-');
         if (p.length === 3) {
             const y = p[0].length === 2 ? '20' + p[0] : p[0];
-            const d_day = p[1].padStart(2, '0'); // Il giorno era al centro
-            const m_month = p[2].padStart(2, '0'); // Il mese era alla fine
-            return `${y}-${m_month}-${d_day}`;
+            const m = p[2].padStart(2, '0'); // Mese è alla fine
+            const d_day = p[1].padStart(2, '0'); // Giorno è al centro
+            return `${y}-${m}-${d_day}`;
         }
         return '';
     };
