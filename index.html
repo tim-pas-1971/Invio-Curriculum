@@ -1040,8 +1040,8 @@
             <td>${item.data2 ? formatDate(item.data2) : '-'}</td>
             <td>${item.data3 ? formatDate(item.data3) : '-'}</td>
             <td style="white-space:nowrap;">
-                <button title="Apri" class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-folder-open"></i></button>
-                <button title="Modifica" class="btn-primary" style="padding:4px 8px; font-size:12px; background:#ecc94b;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-pen"></i></button>
+                <button title="Apri" class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="(${index})"><i class="fa-solid fa-folder-open"></i></button>
+                <button title="Modifica" class="btn-primary" style="padding:4px 8px; font-size:12px; background:#ecc94b;" onclick="(${index})"><i class="fa-solid fa-pen"></i></button>
                 <button title="Elimina" class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteAuto(${index})"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
@@ -1074,22 +1074,38 @@
         }
 
         function loadEditAuto(index) {
-            const item = elencoAuto[index];
-            document.getElementById('edit-index-auto').value = index;
-            document.getElementById('azienda').value = item.azienda;
-            document.getElementById('indirizzo').value = item.indirizzo || '';
-            document.getElementById('comune').value = item.comune;
-            document.getElementById('telefono').value = item.telefono || '';
-            document.getElementById('km').value = item.km || '';
-            document.getElementById('settore').value = item.settore || '';
-            document.getElementById('data1').value = item.data1 || '';
-            document.getElementById('data2').value = item.data2 || '';
-            document.getElementById('data3').value = item.data3 || '';
-            currentDetailsBufferAuto.invio1 = item.invio1 || defaultInvioDetails();
-            currentDetailsBufferAuto.invio2 = item.invio2 || defaultInvioDetails();
-            currentDetailsBufferAuto.invio3 = item.invio3 || defaultInvioDetails();
-            document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
+    const item = elencoAuto[index];
+    document.getElementById('edit-index-auto').value = index;
+    document.getElementById('azienda').value = item.azienda;
+    document.getElementById('indirizzo').value = item.indirizzo || '';
+    document.getElementById('comune').value = item.comune;
+    document.getElementById('telefono').value = item.telefono || '';
+    document.getElementById('km').value = item.km || '';
+    document.getElementById('settore').value = item.settore || '';
+
+    // AGGIORNAMENTO: Funzione interna per forzare il formato aaaa-mm-gg
+    const forceDate = (d) => {
+        if (!d || d === '-') return '';
+        // Se è già aaaa-mm-gg, lascialo così
+        if (d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
+        // Se è gg/mm/aaaa, convertilo
+        if (d.includes('/')) {
+            const p = d.split('/');
+            return `${p[2]}-${p[1]}-${p[0]}`;
         }
+        return d;
+    };
+
+    document.getElementById('data1').value = forceDate(item.data1);
+    document.getElementById('data2').value = forceDate(item.data2);
+    document.getElementById('data3').value = forceDate(item.data3);
+
+    currentDetailsBufferAuto.invio1 = item.invio1 || defaultInvioDetails();
+    currentDetailsBufferAuto.invio2 = item.invio2 || defaultInvioDetails();
+    currentDetailsBufferAuto.invio3 = item.invio3 || defaultInvioDetails();
+    
+    document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
+}
 
         function deleteAuto(index) {
             if(confirm("Eliminare questa scheda autocandidatura?")) {
