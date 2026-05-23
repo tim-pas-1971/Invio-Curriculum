@@ -455,7 +455,7 @@
             <button class="btn-backup-import" style="background:#27ae60" onclick="document.getElementById('xlsx-input').click()">
     <i class="fa-solid fa-file-excel"></i> Importa Excel
 </button>
-<input type="file" id="xlsx-input" class="hidden" accept=".xlsx" onchange="(event)">
+<input type="file" id="xlsx-input" class="hidden" accept=".xlsx" onchange="handleExcelImport(event)">
         </div>
     </div>
 
@@ -1602,32 +1602,20 @@ function handleExcelImport(e) {
         
         // Funzione per convertire data italiana (gg/mm/aaaa) in formato standard (aaaa-mm-gg)
         const parseDate = (d) => {
-    if (!d) return '';
-
-    // 1. Se Excel la passa come numero (formato data interno)
-    if (!isNaN(d) && typeof d === 'number') {
-        const dateObj = new Date((d - 25569) * 86400 * 1000);
-        return dateObj.toISOString().split('T')[0];
-    }
-
-    // 2. Se è una stringa in formato gg/mm/aaaa (il tuo caso)
-    if (typeof d === 'string' && d.includes('/')) {
-        const parts = d.split('/');
-        if (parts.length === 3) {
-            // Ritorna aaaa-mm-gg
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-    }
-    
-    return d; // Ritorna il dato così com'è se non lo riconosce
-};
+            if (!d) return '';
+            // Se è già formato aaaa-mm-gg
+            if (d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
+            // Se è formato gg/mm/aaaa
+            const parts = d.split('/');
+            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            return d;
+        };
         
         let conteggioAggiornati = 0;
         let conteggioNuovi = 0;
         
         rows.forEach(row => {
-            // Cerchiamo di prendere il dato anche se il nome della colonna ha spazi leggermente diversi
-            const nomeAzienda = row['Azienda / Ente / Scuola'] || row['Azienda'] || 'N/A';
+            const nomeAzienda = row['Azienda / Ente / Scuola'] || 'N/A';
             const indexEsistente = elencoAuto.findIndex(a => a.azienda.toLowerCase() === nomeAzienda.toLowerCase());
             
             const datiAggiornati = {
@@ -1637,22 +1625,12 @@ function handleExcelImport(e) {
                 km: row['Km Sede'] || 0,
                 telefono: row['Telefono di riferimento'] || '',
                 settore: normalizzaSettore(row['Settore Merceologico']),
-                // Usiamo il parsing robusto per le date
                 data1: parseDate(row['Data 1° Invio']),
-                invio1: { 
-                    contatto: row['1° Invio _ Mail / Nominativo'] || '', 
-                    stato: row['Data 1° Invio'] ? 'Inviato' : '' 
-                },
+                invio1: { contatto: row['1° Invio _ Mail / Nominativo'] || '', stato: row['Data 1° Invio'] ? 'Inviato' : '' },
                 data2: parseDate(row['Data 2° Invio']),
-                invio2: { 
-                    contatto: row['2° Invio _ Mail / Nominativo'] || '', 
-                    stato: row['Data 2° Invio'] ? 'Inviato' : '' 
-                },
+                invio2: { contatto: row['2° Invio _ Mail / Nominativo'] || '', stato: row['Data 2° Invio'] ? 'Inviato' : '' },
                 data3: parseDate(row['Data 3° Invio']),
-                invio3: { 
-                    contatto: row['3° Invio _ Mail / Nominativo'] || '', 
-                    stato: row['Data 3° Invio'] ? 'Inviato' : '' 
-                }
+                invio3: { contatto: row['3° Invio _ Mail / Nominativo'] || '', stato: row['Data 3° Invio'] ? 'Inviato' : '' }
             };
 
             if (indexEsistente !== -1) {
