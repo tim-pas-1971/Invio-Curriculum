@@ -1570,11 +1570,31 @@
         }
 
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
+        
         function formatDate(dateStr) {
-            if(!dateStr) return '';
-            const d = dateStr.split('-');
-            return `${d[2]}/${d[1]}/${d[0]}`;
+    // Se il dato è assente, vuoto o non definito, restituiamo un semplice trattino
+    if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) {
+        return '-';
+    }
+
+    // Se è già una stringa e contiene '/', è già formattata (gg/mm/aaaa), la restituiamo così com'è
+    if (typeof dateStr === 'string' && dateStr.includes('/')) {
+        return dateStr;
+    }
+
+    // Se è nel formato aaaa-mm-gg (formato tipico dei database/input date)
+    if (typeof dateStr === 'string' && dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            // Ritorna gg/mm/aaaa
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
+    }
+
+    // Ultima spiaggia: se il formato non è riconosciuto, restituisci il dato originale 
+    // invece di "undefined"
+    return String(dateStr);
+}
         // Funzione per pulire e uniformare i settori automaticamente
         function normalizzaSettore(s) {
             if (!s) return "Altro";
