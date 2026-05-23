@@ -1633,12 +1633,9 @@ function handleExcelImport(e) {
         const workbook = XLSX.read(data, {type: 'array', cellDates: true});
         const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {raw: false});
         
-        // Funzione per convertire data italiana (gg/mm/aaaa) in formato standard (aaaa-mm-gg)
         const parseDate = (d) => {
             if (!d) return '';
-            // Se è già formato aaaa-mm-gg
             if (d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
-            // Se è formato gg/mm/aaaa
             const parts = d.split('/');
             if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
             return d;
@@ -1659,14 +1656,21 @@ function handleExcelImport(e) {
                 telefono: row['Telefono di riferimento'] || '',
                 settore: normalizzaSettore(row['Settore Merceologico']),
                 data1: parseDate(row['Data 1° Invio']),
-                invio1: { contatto: row['1° Invio _ Mail / Nominativo'] || '', stato: row['Data 1° Invio'] ? 'Inviato' : '' },
+                invio1: { 
+                    contatto: row['Contatto1'] || '', 
+                    stato: row['Data 1° Invio'] ? 'Inviato' : '' 
+                },
                 data2: parseDate(row['Data 2° Invio']),
-                invio2: { contatto: row['2° Invio _ Mail / Nominativo'] || '', stato: row['Data 2° Invio'] ? 'Inviato' : '' },
-                data3: parseDate(row['Data 3° Invio']),
-                invio3: { contatto: row['3° Invio _ Mail / Nominativo'] || '', stato: row['Data 3° Invio'] ? 'Inviato' : '' }
+                invio2: { 
+                    contatto: row['Contatto2'] || '', 
+                    stato: row['Data 2° Invio'] ? 'Inviato' : '' 
+                },
+                data3: row['Data 3° Invio'] ? parseDate(row['Data 3° Invio']) : '',
+                invio3: currentDetailsBufferAuto.invio3 // Mantiene il dato esistente se non presente in Excel
             };
 
             if (indexEsistente !== -1) {
+                // Manteniamo le strutture dati esistenti (come i colloqui) fondendole con i nuovi dati
                 elencoAuto[indexEsistente] = { ...elencoAuto[indexEsistente], ...datiAggiornati };
                 conteggioAggiornati++;
             } else {
