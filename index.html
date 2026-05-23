@@ -1074,33 +1074,8 @@
         }
 
         function loadEditAuto(index) {
-    console.log("Tentativo di modifica per il record indice:", index);
     const item = elencoAuto[index];
-    
-    if (!item) {
-        alert("Errore: Impossibile trovare il record.");
-        return;
-    }
-
-    // Funzione per forzare il formato yyyy-mm-dd che il browser vuole
-    const convertToInputDate = (dateStr) => {
-        if (!dateStr || dateStr === '-') return '';
-        
-        // Se è già nel formato corretto yyyy-mm-dd
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-        
-        // Se il formato è dd/mm/yy o simile, proviamo a convertirlo
-        // NOTA: Poiché i tuoi dati sembrano essere '26-2-3' (anno-mese-giorno),
-        // dobbiamo assicurarci di aggiungere gli zeri mancanti.
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            const y = parts[0].length === 2 ? '20' + parts[0] : parts[0];
-            const m = parts[1].padStart(2, '0');
-            const d = parts[2].padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-        return '';
-    };
+    if (!item) return;
 
     document.getElementById('edit-index-auto').value = index;
     document.getElementById('azienda').value = item.azienda || '';
@@ -1110,10 +1085,28 @@
     document.getElementById('km').value = item.km || '';
     document.getElementById('settore').value = item.settore || '';
 
-    // Assegnazione date pulita
-    document.getElementById('data1').value = convertToInputDate(item.data1);
-    document.getElementById('data2').value = convertToInputDate(item.data2);
-    document.getElementById('data3').value = convertToInputDate(item.data3);
+    // --- CORREZIONE DATA ---
+    // Questa funzione serve SOLO per riempire gli input di tipo date
+    // Il browser accetta SOLO il formato aaaa-mm-gg
+    const normalizeDateForInput = (d) => {
+        if (!d || d === '-' || d === 'undefined') return '';
+        // Se è già aaaa-mm-gg (es. 2026-05-23)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+        // Se è gg/mm/aaaa (es. 23/05/2026)
+        if (d.includes('/')) {
+            const p = d.split('/');
+            if (p.length === 3) return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+        }
+        return '';
+    };
+
+    document.getElementById('data1').value = normalizeDateForInput(item.data1);
+    document.getElementById('data2').value = normalizeDateForInput(item.data2);
+    document.getElementById('data3').value = normalizeDateForInput(item.data3);
+
+    currentDetailsBufferAuto.invio1 = item.invio1 || {contatto: '', stato: ''};
+    currentDetailsBufferAuto.invio2 = item.invio2 || {contatto: '', stato: ''};
+    currentDetailsBufferAuto.invio3 = item.invio3 || {contatto: '', stato: ''};
 
     document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
 }
