@@ -1040,8 +1040,8 @@
             <td>${item.data2 ? formatDate(item.data2) : '-'}</td>
             <td>${item.data3 ? formatDate(item.data3) : '-'}</td>
             <td style="white-space:nowrap;">
-                <button title="Apri" class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="(${index})"><i class="fa-solid fa-folder-open"></i></button>
-                <button title="Modifica" class="btn-primary" style="padding:4px 8px; font-size:12px; background:#ecc94b;" onclick="(${index})"><i class="fa-solid fa-pen"></i></button>
+                <button title="Apri" class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-folder-open"></i></button>
+                <button title="Modifica" class="btn-primary" style="padding:4px 8px; font-size:12px; background:#ecc94b;" onclick="loadEditAuto(${index})"><i class="fa-solid fa-pen"></i></button>
                 <button title="Elimina" class="btn-close" style="padding:4px 8px; font-size:12px;" onclick="deleteAuto(${index})"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
