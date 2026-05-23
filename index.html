@@ -1078,31 +1078,44 @@
     const item = elencoAuto[index];
     
     if (!item) {
-        alert("Errore: Impossibile trovare il record. Forse la lista è vuota?");
+        alert("Errore: Impossibile trovare il record.");
         return;
     }
 
-    console.log("Dati recuperati:", item);
+    // Funzione per forzare il formato yyyy-mm-dd che il browser vuole
+    const convertToInputDate = (dateStr) => {
+        if (!dateStr || dateStr === '-') return '';
+        
+        // Se è già nel formato corretto yyyy-mm-dd
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+        
+        // Se il formato è dd/mm/yy o simile, proviamo a convertirlo
+        // NOTA: Poiché i tuoi dati sembrano essere '26-2-3' (anno-mese-giorno),
+        // dobbiamo assicurarci di aggiungere gli zeri mancanti.
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            const y = parts[0].length === 2 ? '20' + parts[0] : parts[0];
+            const m = parts[1].padStart(2, '0');
+            const d = parts[2].padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+        return '';
+    };
 
-    try {
-        document.getElementById('edit-index-auto').value = index;
-        document.getElementById('azienda').value = item.azienda || '';
-        document.getElementById('indirizzo').value = item.indirizzo || '';
-        document.getElementById('comune').value = item.comune || '';
-        document.getElementById('telefono').value = item.telefono || '';
-        document.getElementById('km').value = item.km || '';
-        document.getElementById('settore').value = item.settore || '';
+    document.getElementById('edit-index-auto').value = index;
+    document.getElementById('azienda').value = item.azienda || '';
+    document.getElementById('indirizzo').value = item.indirizzo || '';
+    document.getElementById('comune').value = item.comune || '';
+    document.getElementById('telefono').value = item.telefono || '';
+    document.getElementById('km').value = item.km || '';
+    document.getElementById('settore').value = item.settore || '';
 
-        // Caricamento date
-        document.getElementById('data1').value = item.data1 || '';
-        document.getElementById('data2').value = item.data2 || '';
-        document.getElementById('data3').value = item.data3 || '';
+    // Assegnazione date pulita
+    document.getElementById('data1').value = convertToInputDate(item.data1);
+    document.getElementById('data2').value = convertToInputDate(item.data2);
+    document.getElementById('data3').value = convertToInputDate(item.data3);
 
-        document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
-        console.log("Modifica caricata con successo!");
-    } catch (err) {
-        console.error("Errore durante il caricamento dei campi:", err);
-    }
+    document.getElementById('azienda').scrollIntoView({ behavior: 'smooth' });
 }
 
         function deleteAuto(index) {
