@@ -1592,27 +1592,32 @@
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         
         function formatDate(dateStr) {
-    // Se il dato è assente, vuoto o non definito, restituiamo un semplice trattino
+    // 1. Se il dato è vuoto, restituiamo un trattino
     if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) {
         return '-';
     }
 
-    // Se è già una stringa e contiene '/', è già formattata (gg/mm/aaaa), la restituiamo così com'è
+    // 2. Se è già formato gg/mm/aaaa, restituiamo così com'è
     if (typeof dateStr === 'string' && dateStr.includes('/')) {
         return dateStr;
     }
 
-    // Se è nel formato aaaa-mm-gg (formato tipico dei database/input date)
+    // 3. Se è nel formato anno-mese-giorno (es. 26-2-3 oppure 2026-03-02)
     if (typeof dateStr === 'string' && dateStr.includes('-')) {
         const parts = dateStr.split('-');
         if (parts.length === 3) {
-            // Ritorna gg/mm/aaaa
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            // Gestione anno: se è '26' diventa '2026', se è '2026' resta '2026'
+            const anno = parts[0].length === 2 ? '20' + parts[0] : parts[0];
+            
+            // Gestione mese e giorno: forziamo sempre le 2 cifre (es. '2' diventa '02')
+            const mese = parts[1].padStart(2, '0');
+            const giorno = parts[2].padStart(2, '0');
+            
+            // Ritorniamo Giorno / Mese / Anno
+            return `${giorno}/${mese}/${anno}`;
         }
     }
 
-    // Ultima spiaggia: se il formato non è riconosciuto, restituisci il dato originale 
-    // invece di "undefined"
     return String(dateStr);
 }
         // Funzione per pulire e uniformare i settori automaticamente
