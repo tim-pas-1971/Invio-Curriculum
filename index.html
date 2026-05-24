@@ -423,12 +423,29 @@
         .badge-ins { background-color: var(--btn-ins-color); }
 
         .hidden { display: none !important; }
+        
         #lista-documenti {
-        width: 100%;
-        margin-top: 15px;
-    }
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        /* Tasto lente d'ingrandimento */
+        .btn-details {
+            cursor: pointer;
+            font-size: 14px; 
+            padding: 5px 8px;
+            background-color: #f0f4f8;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            transition: all 0.2s;
+            margin-left: 5px;
+        }
+
+        .btn-details:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-1px);
+        }
 </style>
-    </style>
 </head>
 <body>
 
@@ -536,21 +553,21 @@
                     <label>Data 1° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data1">
-                        <button type="button" class="btn-details" onclick="openDetailsAuto(1)">1° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(1)">🔍</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 2° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data2">
-                        <button type="button" class="btn-details" onclick="openDetailsAuto(2)">2° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(2)">🔍</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Data 3° Invio</label>
                     <div class="date-input-group">
                         <input type="date" id="data3">
-                        <button type="button" class="btn-details" onclick="openDetailsAuto(3)">3° INVIO</button>
+                        <button type="button" class="btn-details" onclick="openDetailsAuto(3)">🔍</button>
                     </div>
                 </div>
             </div>
@@ -1843,4 +1860,3 @@ function aggiornaStatistiche() {
 
 </body>
 </html>
-
