@@ -432,24 +432,33 @@
 </head>
 <body>
 
-   <header style="display: flex; justify-content: space-between; align-items: center;">
+   <header style="display: flex; justify-content: space-between; align-items: center; padding: 22px 25px;">
     <div>
         <h1>Gestione Candidature</h1>
         <p>Il tuo spazio di controllo ottimizzato per il rientro nel mondo del lavoro</p>
     </div>
-    <div class="stats-container" style="display: flex; gap: 10px;">
-        <div class="stat-box" style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-            <small style="display:block; font-size: 10px;">Aziende</small>
-            <span id="stat-aziende" style="font-size: 18px; font-weight: bold;">0</span>
+
+    <div class="dashboard-stats" style="display: flex; gap: 30px; align-items: flex-end;">
+        
+        <div class="stat-group" style="display: flex; flex-direction: column; align-items: center;">
+            <small style="color: white; font-size: 11px; margin-bottom: 5px; opacity: 0.9;">Autocandidature</small>
+            <div style="display: flex; gap: 8px;">
+                <div style="background: #007aff; color: white; padding: 8px 15px; border-radius: 8px; text-align: center; min-width: 80px;">
+                    <small style="display:block; font-size: 9px; opacity: 0.8;">Aziende Auto</small>
+                    <span id="stat-aziende" style="font-size: 16px; font-weight: bold;">0</span>
+                </div>
+                <div style="background: #87ceeb; color: white; padding: 8px 15px; border-radius: 8px; text-align: center; min-width: 80px;">
+                    <small style="display:block; font-size: 9px; opacity: 0.8;">Invii</small>
+                    <span id="stat-invii" style="font-size: 16px; font-weight: bold;">0</span>
+                </div>
+            </div>
         </div>
-        <div class="stat-box" style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-            <small style="display:block; font-size: 10px;">Invii Auto</small>
-            <span id="stat-invii" style="font-size: 18px; font-weight: bold;">0</span>
+
+        <div class="stat-box" style="background: #ff6b35; color: white; padding: 10px 15px; border-radius: 8px; text-align: center; min-width: 80px;">
+            <small style="display:block; font-size: 9px; opacity: 0.8;">Inserzioni</small>
+            <span id="stat-ins" style="font-size: 16px; font-weight: bold;">0</span>
         </div>
-        <div class="stat-box" style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-            <small style="display:block; font-size: 10px;">Inserzioni</small>
-            <span id="stat-ins" style="font-size: 18px; font-weight: bold;">0</span>
-        </div>
+
     </div>
 </header>
 
