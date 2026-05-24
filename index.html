@@ -1163,57 +1163,6 @@ function loadEditAuto(index) {
     document.getElementById('details-modal').style.display = 'flex';
 }
 
-        function apriGestioneDocumenti() {
-    document.getElementById('documenti-modal').style.display = 'flex';
-    aggiornaListaDocumenti();
-}
-
-function chiudiGestioneDocumenti() {
-    document.getElementById('documenti-modal').style.display = 'none';
-}
-
-function caricaDocumento() {
-    const input = document.getElementById('file-input');
-    if (input.files.length === 0) return;
-    
-    const file = input.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const fileData = {
-            nome: file.name,
-            dati: e.target.result // Questo è il file convertito in formato salvabile
-        };
-        
-        let archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
-        archivio.push(fileData);
-        localStorage.setItem('archivio_documenti', JSON.stringify(archivio));
-        aggiornaListaDocumenti();
-    };
-    reader.readAsDataURL(file);
-}
-
-function aggiornaListaDocumenti() {
-    const lista = document.getElementById('lista-documenti');
-    lista.innerHTML = '';
-    const archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
-    
-    archivio.forEach((doc, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `${doc.nome} <button onclick="scaricaDocumento(${index})" style="margin-left: 10px;">Scarica</button>`;
-        lista.appendChild(li);
-    });
-}
-
-function scaricaDocumento(index) {
-    const archivio = JSON.parse(localStorage.getItem('archivio_documenti'));
-    const doc = archivio[index];
-    const link = document.createElement('a');
-    link.href = doc.dati;
-    link.download = doc.nome;
-    link.click();
-}
-
         function toggleAutoInterviewsSection() {
             const s = document.getElementById('det-stato').value;
             const sec = document.getElementById('section-colloqui');
@@ -1764,6 +1713,74 @@ function handleExcelImport(e) {
         loadEditIns(index);
     }
 }
+
+                function apriGestioneDocumenti() {
+    document.getElementById('documenti-modal').style.display = 'flex';
+    aggiornaListaDocumenti();
+}
+
+function chiudiGestioneDocumenti() {
+    document.getElementById('documenti-modal').style.display = 'none';
+}
+
+function caricaDocumento() {
+    const input = document.getElementById('file-input');
+    if (input.files.length === 0) return;
+    
+    const file = input.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const fileData = {
+            nome: file.name,
+            dati: e.target.result // Questo è il file convertito in formato salvabile
+        };
+        
+        let archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
+        archivio.push(fileData);
+        localStorage.setItem('archivio_documenti', JSON.stringify(archivio));
+        aggiornaListaDocumenti();
+    };
+    reader.readAsDataURL(file);
+}
+
+function aggiornaListaDocumenti() {
+    const lista = document.getElementById('lista-documenti');
+    lista.innerHTML = '';
+    const archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
+    
+    archivio.forEach((doc, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${doc.nome} <button onclick="scaricaDocumento(${index})" style="margin-left: 10px;">Scarica</button>`;
+        lista.appendChild(li);
+    });
+}
+
+function scaricaDocumento(index) {
+    const archivio = JSON.parse(localStorage.getItem('archivio_documenti'));
+    const doc = archivio[index];
+    const link = document.createElement('a');
+    link.href = doc.dati;
+    link.download = doc.nome;
+    link.click();
+}
+        
     </script>
+
+    <div id="documenti-modal" style="display: none; ...">
+        </div>
+
+    <script>
+        // ... tutte le tue funzioni esistenti (saveDataAuto, renderTableAuto, ecc.) ...
+
+        // ... E QUI IN FONDO, dentro lo script, metti le nuove funzioni:
+        function apriGestioneDocumenti() { ... }
+        function chiudiGestioneDocumenti() { ... }
+        function caricaDocumento() { ... }
+        function aggiornaListaDocumenti() { ... }
+        function scaricaDocumento(index) { ... }
+    </script>
+
 </body>
 </html>
+
