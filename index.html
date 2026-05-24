@@ -359,7 +359,7 @@
             padding: 30px;
             border-radius: 12px;
             width: 95%;
-            max-width: 850px;
+            max-width: 1000px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
@@ -423,6 +423,11 @@
         .badge-ins { background-color: var(--btn-ins-color); }
 
         .hidden { display: none !important; }
+        #lista-documenti {
+        width: 100%;
+        margin-top: 15px;
+    }
+</style>
     </style>
 </head>
 <body>
@@ -1738,7 +1743,6 @@ function handleExcelImport(e) {
     lista.innerHTML = '';
     let archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
     
-    // Ordine alfabetico per nome file
     archivio.sort((a, b) => a.nome.localeCompare(b.nome));
     
     archivio.forEach((doc, index) => {
@@ -1746,16 +1750,17 @@ function handleExcelImport(e) {
         li.style.display = 'flex';
         li.style.justifyContent = 'space-between';
         li.style.alignItems = 'center';
-        li.style.padding = '8px 0';
-        li.style.borderBottom = '1px solid #eee';
+        li.style.padding = '10px';
+        li.style.borderBottom = '1px solid #e2e8f0';
         
+        // Ho aumentato lo spazio dedicato al nome e limitato la flessibilità dei tasti
         li.innerHTML = `
-            <span style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;">
+            <span style="flex: 1; margin-right: 20px; font-weight: 500; word-break: break-word;">
                 ${doc.nome}
             </span>
-            <div style="flex-shrink: 0;">
-                <button onclick="scaricaDocumento(${index})" style="background:#4a5568; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px;">Scarica</button>
-                <button onclick="eliminaDocumento(${index})" style="background:#e53e3e; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px; margin-left:5px;">Cancella</button>
+            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button onclick="scaricaDocumento(${index})" style="background:#4a5568; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">Scarica</button>
+                <button onclick="eliminaDocumento(${index})" style="background:#e53e3e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">Cancella</button>
             </div>
         `;
         lista.appendChild(li);
