@@ -948,6 +948,7 @@
             buildColloquiPanelsHTMLAuto();
             buildColloquiPanelsHTMLIns();
             executeSearch();
+            aggiornaStatistiche();
         };
 
         function switchMainTab(target) {
@@ -1099,6 +1100,7 @@
     localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
     resetFormAuto();
     renderTableAuto();
+    aggiornaStatistiche();
 }
 
 function loadEditAuto(index) {
@@ -1798,6 +1800,22 @@ function eliminaDocumento(index) {
         archivio.splice(index, 1); // Rimuove l'elemento
         localStorage.setItem('archivio_documenti', JSON.stringify(archivio));
         aggiornaListaDocumenti();
+    }
+    function aggiornaStatistiche() {
+    // 1. Aziende (lunghezza elencoAuto)
+    document.getElementById('stat-aziende').innerText = elencoAuto.length;
+    
+    // 2. Invii totali (conta ogni volta che c'è una data in 1, 2 o 3)
+    let inviiTotali = 0;
+    elencoAuto.forEach(item => {
+        if (item.data1) inviiTotali++;
+        if (item.data2) inviiTotali++;
+        if (item.data3) inviiTotali++;
+    });
+    document.getElementById('stat-invii').innerText = inviiTotali;
+    
+    // 3. Inserzioni (lunghezza elencoIns)
+    document.getElementById('stat-ins').innerText = elencoIns.length;
     }
 }
 </script>
