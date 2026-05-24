@@ -1797,11 +1797,14 @@ function scaricaDocumento(index) {
 function eliminaDocumento(index) {
     if (confirm("Sei sicura di voler eliminare questo documento?")) {
         let archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
-        archivio.splice(index, 1); // Rimuove l'elemento
+        archivio.splice(index, 1); 
         localStorage.setItem('archivio_documenti', JSON.stringify(archivio));
         aggiornaListaDocumenti();
     }
-    function aggiornaStatistiche() {
+}
+
+// Questa funzione deve stare FUORI da eliminaDocumento
+function aggiornaStatistiche() {
     // 1. Aziende (lunghezza elencoAuto)
     document.getElementById('stat-aziende').innerText = elencoAuto.length;
     
@@ -1816,7 +1819,6 @@ function eliminaDocumento(index) {
     
     // 3. Inserzioni (lunghezza elencoIns)
     document.getElementById('stat-ins').innerText = elencoIns.length;
-    }
 }
 </script>
 
