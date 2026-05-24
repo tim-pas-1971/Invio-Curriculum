@@ -432,10 +432,26 @@
 </head>
 <body>
 
-    <header>
+   <header style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
         <h1>Gestione Candidature</h1>
         <p>Il tuo spazio di controllo ottimizzato per il rientro nel mondo del lavoro</p>
-    </header>
+    </div>
+    <div class="stats-container" style="display: flex; gap: 10px;">
+        <div class="stat-box" style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+            <small style="display:block; font-size: 10px;">Aziende</small>
+            <span id="stat-aziende" style="font-size: 18px; font-weight: bold;">0</span>
+        </div>
+        <div class="stat-box" style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+            <small style="display:block; font-size: 10px;">Invii Auto</small>
+            <span id="stat-invii" style="font-size: 18px; font-weight: bold;">0</span>
+        </div>
+        <div class="stat-box" style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+            <small style="display:block; font-size: 10px;">Inserzioni</small>
+            <span id="stat-ins" style="font-size: 18px; font-weight: bold;">0</span>
+        </div>
+    </div>
+</header>
 
     <div class="nav-container">
         <nav>
