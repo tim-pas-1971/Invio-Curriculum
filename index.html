@@ -460,7 +460,14 @@
     </div>
 
     <div id="autocandidature-tab" class="container">
-        <h2 style="color: var(--btn-auto-color); margin-bottom: 18px;"><i class="fa-solid fa-paper-plane"></i> Nuova Autocandidatura</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+    <h2 style="color: var(--btn-auto-color); margin: 0;">
+        <i class="fa-solid fa-paper-plane"></i> Nuova Autocandidatura
+    </h2>
+    <button type="button" onclick="apriGestioneDocumenti()" class="btn-documenti" style="background-color: #6b7280; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+        <i class="fa-solid fa-folder-open"></i> Archivio Documenti
+    </button>
+</div>
         <form id="app-form" onsubmit="saveDataAuto(event)">
             <input type="hidden" id="edit-index-auto" value="">
             
