@@ -1703,83 +1703,67 @@ function handleExcelImport(e) {
     reader.readAsArrayBuffer(file);
 }
         function goToRecordAndEdit(tab, index) {
-    // 1. Cambia la tab visibile
-    switchMainTab(tab);
-    
-    // 2. Apri il record corretto
-    if(tab === 'autocandidature') {
-        loadEditAuto(index);
-    } else if(tab === 'inserzioni') {
-        loadEditIns(index);
+        switchMainTab(tab);
+        if(tab === 'autocandidature') { loadEditAuto(index); } 
+        else if(tab === 'inserzioni') { loadEditIns(index); }
     }
-}
 
-                function apriGestioneDocumenti() {
-    document.getElementById('documenti-modal').style.display = 'flex';
-    aggiornaListaDocumenti();
-}
-
-function chiudiGestioneDocumenti() {
-    document.getElementById('documenti-modal').style.display = 'none';
-}
-
-function caricaDocumento() {
-    const input = document.getElementById('file-input');
-    if (input.files.length === 0) return;
-    
-    const file = input.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const fileData = {
-            nome: file.name,
-            dati: e.target.result // Questo è il file convertito in formato salvabile
-        };
-        
-        let archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
-        archivio.push(fileData);
-        localStorage.setItem('archivio_documenti', JSON.stringify(archivio));
+    // --- FUNZIONI ARCHIVIO DOCUMENTI ---
+    function apriGestioneDocumenti() {
+        document.getElementById('documenti-modal').style.display = 'flex';
         aggiornaListaDocumenti();
-    };
-    reader.readAsDataURL(file);
-}
+    }
 
-function aggiornaListaDocumenti() {
-    const lista = document.getElementById('lista-documenti');
-    lista.innerHTML = '';
-    const archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
-    
-    archivio.forEach((doc, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `${doc.nome} <button onclick="scaricaDocumento(${index})" style="margin-left: 10px;">Scarica</button>`;
-        lista.appendChild(li);
-    });
-}
+    function chiudiGestioneDocumenti() {
+        document.getElementById('documenti-modal').style.display = 'none';
+    }
 
-function scaricaDocumento(index) {
-    const archivio = JSON.parse(localStorage.getItem('archivio_documenti'));
-    const doc = archivio[index];
-    const link = document.createElement('a');
-    link.href = doc.dati;
-    link.download = doc.nome;
-    link.click();
-}
-        
-    </script>
+    function caricaDocumento() {
+        const input = document.getElementById('file-input');
+        if (input.files.length === 0) return;
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileData = { nome: file.name, dati: e.target.result };
+            let archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
+            archivio.push(fileData);
+            localStorage.setItem('archivio_documenti', JSON.stringify(archivio));
+            aggiornaListaDocumenti();
+        };
+        reader.readAsDataURL(file);
+    }
 
-    <div id="documenti-modal" style="display: none; ...">
-        </div>
+    function aggiornaListaDocumenti() {
+        const lista = document.getElementById('lista-documenti');
+        lista.innerHTML = '';
+        const archivio = JSON.parse(localStorage.getItem('archivio_documenti') || '[]');
+        archivio.forEach((doc, index) => {
+            const li = document.createElement('li');
+            li.style.marginBottom = '10px';
+            li.innerHTML = `${doc.nome} <button onclick="scaricaDocumento(${index})" style="margin-left: 10px; cursor:pointer;">Scarica</button>`;
+            lista.appendChild(li);
+        });
+    }
 
-    <script>
-        // ... tutte le tue funzioni esistenti (saveDataAuto, renderTableAuto, ecc.) ...
+    function scaricaDocumento(index) {
+        const archivio = JSON.parse(localStorage.getItem('archivio_documenti'));
+        const doc = archivio[index];
+        const link = document.createElement('a');
+        link.href = doc.dati;
+        link.download = doc.nome;
+        link.click();
+    }
+</script>
 
-        // ... E QUI IN FONDO, dentro lo script, metti le nuove funzioni:
-        function apriGestioneDocumenti() { ... }
-        function chiudiGestioneDocumenti() { ... }
-        function caricaDocumento() { ... }
-        function aggiornaListaDocumenti() { ... }
-        function scaricaDocumento(index) { ... }
-    </script>
+<div id="documenti-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div style="background: white; padding: 20px; border-radius: 8px; width: 500px; max-width: 90%;">
+        <h3>Archivio Documenti Generici</h3>
+        <input type="file" id="file-input" style="margin: 10px 0;">
+        <button onclick="caricaDocumento()" style="background: var(--btn-auto-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Carica</button>
+        <ul id="lista-documenti" style="margin-top: 15px; list-style: none; padding: 0;"></ul>
+        <button onclick="chiudiGestioneDocumenti()" style="margin-top: 20px; width: 100%; cursor: pointer;">Chiudi</button>
+    </div>
+</div>
 
 </body>
 </html>
