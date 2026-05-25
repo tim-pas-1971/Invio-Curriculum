@@ -572,6 +572,11 @@
                 </div>
             </div>
 
+            <div class="form-group" style="margin-top: 15px;">
+            <label>Note personali</label>
+            <textarea id="note-auto" placeholder="Inserisci qui valutazioni, feedback o promemoria liberi..."></textarea>
+        </div>
+
             <button type="submit" class="action-btn" style="background-color: var(--btn-auto-color); color: white; margin-top:10px;">Salva Scheda Azienda</button>
         </form>
 
@@ -1119,6 +1124,7 @@
         data1: document.getElementById('data1').value,
         data2: document.getElementById('data2').value,
         data3: document.getElementById('data3').value,
+        note: document.getElementById('note-auto').value,
         invio1: currentDetailsBufferAuto.invio1,
         invio2: currentDetailsBufferAuto.invio2,
         invio3: currentDetailsBufferAuto.invio3
