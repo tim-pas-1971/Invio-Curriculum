@@ -1840,19 +1840,18 @@ function eliminaDocumento(index) {
 
 // Questa funzione deve stare FUORI da eliminaDocumento
 function aggiornaStatistiche() {
-    // 1. Aziende (lunghezza elencoAuto)
+    // 1. Aziende (213 - corretto)
     document.getElementById('stat-aziende').innerText = elencoAuto.length;
     
-    // 2. Invii totali (conta ogni volta che c'è una data in 1, 2 o 3)
+    // 2. Invii totali (426 - contiamo solo se la data NON è un trattino)
     let inviiTotali = 0;
     elencoAuto.forEach(item => {
-        if (item.data1) inviiTotali++;
-        if (item.data2) inviiTotali++;
-        if (item.data3) inviiTotali++;
+        if (item.data1 && item.data1 !== '-') inviiTotali++;
+        if (item.data2 && item.data2 !== '-') inviiTotali++;
+        // Ignoriamo data3 perché non è un invio effettuato
     });
-    document.getElementById('stat-invii').innerText = inviiTotali;
     
-    // 3. Inserzioni (lunghezza elencoIns)
+    document.getElementById('stat-invii').innerText = inviiTotali;
     document.getElementById('stat-ins').innerText = elencoIns.length;
 }
 </script>
