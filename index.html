@@ -1667,20 +1667,19 @@ function loadEditAuto(index) {
 
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         
-        function formatDate(dateStr) {
+  function formatDate(dateStr) {
     if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) return '-';
     
     // Se è già gg/mm/aaaa, restituisci così com'è
     if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr;
 
-    // Se è nel formato anno-mese-giorno (es. 26-2-3)
+    // Se è nel formato anno-mese-giorno (es. 2026-05-26)
     if (typeof dateStr === 'string' && dateStr.includes('-')) {
         const parts = dateStr.split('-');
         if (parts.length === 3) {
-            // parts[0] è l'anno, parts[1] è il giorno, parts[2] è il mese (nel tuo caso invertito)
             const anno = parts[0].length === 2 ? '20' + parts[0] : parts[0];
-            const giorno = parts[1].padStart(2, '0');
-            const mese = parts[2].padStart(2, '0');
+            const mese = parts[1].padStart(2, '0'); // Mese è la parte centrale
+            const giorno = parts[2].padStart(2, '0'); // Giorno è la parte finale
             return `${giorno}/${mese}/${anno}`;
         }
     }
