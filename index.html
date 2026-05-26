@@ -1670,18 +1670,21 @@ function loadEditAuto(index) {
   function formatDate(dateStr) {
     if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) return '-';
     
-    // Se è già gg/mm/aaaa, restituisci così com'è
-    if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr;
+    // 1. Se è già formattata (gg/mm/aaaa), la lasciamo stare
+    if (dateStr.includes('/')) return dateStr;
 
-    // Se è nel formato anno-mese-giorno (es. 2026-05-26)
-    if (typeof dateStr === 'string' && dateStr.includes('-')) {
+    // 2. Se è nel formato anno-mese-giorno (2026-05-26)
+    if (dateStr.includes('-')) {
         const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            const anno = parts[0].length === 2 ? '20' + parts[0] : parts[0];
-            const mese = parts[1].padStart(2, '0'); // Mese è la parte centrale
-            const giorno = parts[2].padStart(2, '0'); // Giorno è la parte finale
-            return `${giorno}/${mese}/${anno}`;
+        
+        // Se l'anno è di 4 cifre, è il formato standard corretto
+        if (parts[0].length === 4) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
+        
+        // Se è il formato strano che avevi prima (es. 26-05-2026 o simili)
+        // Possiamo provare a restituire la stringa così com'è o fare un tentativo di parsing
+        return dateStr;
     }
     return String(dateStr);
 }
