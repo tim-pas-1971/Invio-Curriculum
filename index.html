@@ -1668,25 +1668,18 @@ function loadEditAuto(index) {
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
         
   function formatDate(dateStr) {
+    // Gestisce i casi in cui la data non esiste o è vuota
     if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === undefined) return '-';
     
-    // 1. Se è già formattata (gg/mm/aaaa), la lasciamo stare
-    if (dateStr.includes('/')) return dateStr;
-
-    // 2. Se è nel formato anno-mese-giorno (2026-05-26)
+    // Se la data è nel formato standard yyyy-mm-dd (che ora hanno tutti i tuoi dati)
     if (dateStr.includes('-')) {
-        const parts = dateStr.split('-');
-        
-        // Se l'anno è di 4 cifre, è il formato standard corretto
-        if (parts[0].length === 4) {
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
-        }
-        
-        // Se è il formato strano che avevi prima (es. 26-05-2026 o simili)
-        // Possiamo provare a restituire la stringa così com'è o fare un tentativo di parsing
-        return dateStr;
+        const p = dateStr.split('-');
+        // Inverte in dd/mm/yyyy
+        return `${p[2]}/${p[1]}/${p[0]}`;
     }
-    return String(dateStr);
+    
+    // Se per qualche motivo arrivasse già nel formato corretto, la restituisce così
+    return dateStr;
 }
         // Funzione per pulire e uniformare i settori automaticamente
         function normalizzaSettore(s) {
