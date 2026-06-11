@@ -1631,20 +1631,30 @@ function loadEditAuto(index) {
         // PARTE 4: GESTIONE BACKUP
         // ==========================================
         function exportDataToJSON() {
-            const backupObject = {
-                autocandidature: elencoAuto,
-                inserzioni: elencoIns,
-                exportDate: new Date().toISOString()
-            };
-            
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObject, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "gestione_candidature_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
+    const backupObject = {
+        autocandidature: elencoAuto,
+        inserzioni: elencoIns,
+        exportDate: new Date().toISOString()
+    };
+    
+    // Genera la data odierna nel formato AAAA-MM-GG
+    const oggi = new Date();
+    const anno = oggi.getFullYear();
+    const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+    const giorno = String(oggi.getDate()).padStart(2, '0');
+    const dataFormattata = `${anno}-${mese}-${giorno}`;
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObject, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    
+    // Inserisce la data nel nome del file scaricato
+    downloadAnchor.setAttribute("download", `gestione_candidature_backup_${dataFormattata}.json`);
+    
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
 
         function importDataFromJSON(event) {
             const file = event.target.files[0];
