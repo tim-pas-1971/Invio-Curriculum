@@ -989,62 +989,13 @@
         let currentDetailsBufferAuto = { invio1: defaultInvioDetails(), invio2: defaultInvioDetails(), invio3: defaultInvioDetails() };
 
         window.onload = function() {
-    // === SCRIPT DI RIPRISTINO E CORREZIONE BLINDATO ===
-    let modificato = false;
-    
-    elencoAuto.forEach(item => {
-        ['data1', 'data2', 'data3'].forEach(key => {
-            if (item[key] && item[key].includes('-')) {
-                const parti = item[key].split('-');
-                
-                // CASO REALE: La data è salvata come ANNO-GIORNO-MESE (es. 2026-11-05 per l'11 Maggio)
-                // Lo capiamo perché il primo pezzo è l'anno a 4 cifre (2026) e l'ultimo è il mese
-                if (parti[0] && parti[0].length === 4 && parti[1] && parti[2]) {
-                    const anno = parti[0];
-                    const giorno = parti[1];
-                    const mese = parti[2];
-                    
-                    // Se il mese (terzo elemento) è più piccolo o uguale a 12 ed è stato invertito con il giorno
-                    // Riportiamo la data nel formato nativo corretto che l'app vuole: ANNO-MESE-GIORNO
-                    if (parseInt(mese) <= 12) {
-                        item[key] = `${anno}-${parti[2].padStart(2, '0')}-${parti[1].padStart(2, '0')}`;
-                        modificato = true;
-                    }
-                }
-            }
-        });
-    });
-
-    if (modificato) {
-        localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
-        console.log("Date raddrizzate nel formato corretto.");
-    }
-    // ============================================================
-
-    // Avvio normale delle tabelle
-    renderTableAuto();
-    renderTableIns();
-    buildColloquiPanelsHTMLAuto();
-    buildColloquiPanelsHTMLIns();
-    executeSearch();
-    aggiornaStatistiche();
-};
-
-    // Se ha trovato e sistemato delle date invertite, salva subito nel database
-    if (modificato) {
-        localStorage.setItem('track_autocandidature', JSON.stringify(elencoAuto));
-        console.log("Date invertite sistemate con successo!");
-    }
-    // ============================================================
-
-    // Riprende il normale avvio dell'applicazione
-    renderTableAuto();
-    renderTableIns();
-    buildColloquiPanelsHTMLAuto();
-    buildColloquiPanelsHTMLIns();
-    executeSearch();
-    aggiornaStatistiche();
-};
+            renderTableAuto();
+            renderTableIns();
+            buildColloquiPanelsHTMLAuto();
+            buildColloquiPanelsHTMLIns();
+            executeSearch();
+            aggiornaStatistiche();
+        };
 
         function switchMainTab(target) {
             document.getElementById('autocandidature-tab').classList.add('hidden');
@@ -1767,34 +1718,12 @@ function handleExcelImport(e) {
         const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {raw: false});
         
         const parseDate = (d) => {
-    if (!d) return '';
-    
-    // Se la data arriva già nel formato corretto AAAA-MM-GG
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-    
-    // Rimuove eventuali spazi bianchi attorno al testo
-    let dataPulita = d.toString().trim();
-    
-    // Gestione formato MM-GG-AAAA o MM/GG/AAAA (inverte se rileva l'anno alla fine)
-    const separatore = dataPulita.includes('-') ? '-' : (dataPulita.includes('/') ? '/' : null);
-    
-    if (separatore) {
-        const parti = dataPulita.split(separatore);
-        // Se l'anno è composto da 4 cifre ed è alla fine (es: 05-26-2026)
-        if (parti[2] && parti[2].length === 4) {
-            const mese = parti[0].padStart(2, '0');
-            const giorno = parti[1].padStart(2, '0');
-            const anno = parti[2];
-            // Lo converte nel formato standard richiesto dal database (AAAA-MM-GG)
-            return `${anno}-${mese}-${giorno}`;
-        }
-        // Se l'anno è all'inizio ed è seguito da / (es: 2026/05/26)
-        if (parti[0] && parti[0].length === 4) {
-            return `${parti[0]}-${parti[1].padStart(2, '0')}-${parti[2].padStart(2, '0')}`;
-        }
-    }
-    return d;
-};
+            if (!d) return '';
+            if (d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
+            const parts = d.split('/');
+            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            return d;
+        };
         
         let conteggioAggiornati = 0;
         let conteggioNuovi = 0;
