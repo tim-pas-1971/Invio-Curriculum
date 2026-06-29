@@ -457,35 +457,37 @@
 .res-negativo    { background-color: #f8bbd0 !important; } /* Rosa intenso */
 
 /* --- NUOVO Stile Legenda a Blocchi Separati --- */
-.legend-container {
+.legend-wrapper {
     display: flex;
     gap: 20px;
+    align-items: flex-start;
     margin-bottom: 20px;
-    align-items: center; /* Allinea verticalmente la scritta "Legenda:" con i box */
 }
 
-.legend-box-group {
-    border: 2px solid #333;
+.legend-block {
+    border: 1px solid #333;
     padding: 10px;
     border-radius: 4px;
     background: #fff;
+    flex: 1;
 }
 
-.legend-title {
+.legend-block-title {
     text-align: center;
     font-weight: bold;
-    margin-bottom: 8px;
     border-bottom: 1px solid #ccc;
+    margin-bottom: 8px;
     padding-bottom: 4px;
 }
 
 .legend-items {
     display: flex;
+    justify-content: center;
     gap: 15px;
 }
 
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 13px; }
-.color-swatch { width: 18px; height: 18px; border: 1px solid #777; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.color-swatch { width: 16px; height: 16px; border: 1px solid #000; }
         
 </style>
 </head>
@@ -623,30 +625,31 @@
         </form>
 
         <div class="table-responsive">
-    <h3 style="margin-bottom: 10px; color: #4a5568;">Registro Autocandidature</h3>
-    
-    <!-- Nuova Legenda a due blocchi -->
-    <div class="legend-container">
-        <span><strong>Legenda:</strong></span>
-        
-        <div class="legend-box-group">
-            <div class="legend-title">Stato invio</div>
-            <div class="legend-items">
-                <span class="legend-item"><div class="color-swatch" style="background:#fff9c4"></div> Riscontro positivo</span>
-                <span class="legend-item"><div class="color-swatch" style="background:#ffcdd2"></div> Riscontro negativo</span>
-            </div>
-        </div>
 
-        <div class="legend-box-group">
-            <div class="legend-title">Risultato del colloquio</div>
-            <div class="legend-items">
-                <span class="legend-item"><div class="color-swatch" style="background:#b3e5fc"></div> In fase di valutazione</span>
-                <span class="legend-item"><div class="color-swatch" style="background:#c8e6c9"></div> Esito positivo</span>
-                <span class="legend-item"><div class="color-swatch" style="background:#81c784"></div> Esito positivo definitivo</span>
-                <span class="legend-item"><div class="color-swatch" style="background:#f8bbd0"></div> Esito negativo</span>
-            </div>
+            <h3 style="margin-bottom: 10px; color: #4a5568;">Registro Autocandidature</h3>
+
+<div class="legend-wrapper">
+    <div style="font-weight:bold; margin-top:15px; margin-right:10px;">Legenda:</div>
+    
+    <div class="legend-block">
+        <div class="legend-block-title">Stato invio</div>
+        <div class="legend-items">
+            <span class="legend-item"><div class="color-swatch" style="background:#fff9c4"></div> Riscontro positivo</span>
+            <span class="legend-item"><div class="color-swatch" style="background:#ffcdd2"></div> Riscontro negativo</span>
         </div>
     </div>
+
+    <div class="legend-block">
+        <div class="legend-block-title">Risultato del colloquio</div>
+        <div class="legend-items">
+            <span class="legend-item"><div class="color-swatch" style="background:#b3e5fc"></div> In fase di valutazione</span>
+            <span class="legend-item"><div class="color-swatch" style="background:#c8e6c9"></div> Esito positivo</span>
+            <span class="legend-item"><div class="color-swatch" style="background:#81c784"></div> Esito positivo definitivo</span>
+            <span class="legend-item"><div class="color-swatch" style="background:#f8bbd0"></div> Esito negativo</span>
+        </div>
+    </div>
+</div>
+    
             <table>
                 <thead>
                     <tr>
