@@ -445,6 +445,29 @@
             background-color: #e2e8f0;
             transform: translateY(-1px);
         }
+
+        /* Classi per la colorazione delle righe */
+.status-colloquio { background-color: #fffde7 !important; } /* Giallo chiaro */
+.status-negativo  { background-color: #ffebee !important; } /* Rosso chiaro */
+
+/* Colori basati sull'esito dei colloqui */
+.res-in-valutazione { background-color: #e3f2fd !important; } /* Blu molto chiaro */
+.res-positivo        { background-color: #e8f5e9 !important; } /* Verde chiaro */
+.res-negativo        { background-color: #fce4ec !important; } /* Rosa/Viola chiaro */
+
+/* Stile per la legenda */
+.legend-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: inline-block;
+    font-size: 12px;
+}
+.legend-item { display: inline-flex; align-items: center; margin-right: 15px; }
+.color-swatch { width: 14px; height: 14px; margin-right: 5px; border: 1px solid #ccc; }
+        
 </style>
 </head>
 <body>
@@ -582,6 +605,13 @@
 
         <div class="table-responsive">
             <h3 style="margin-bottom: 10px; color: #4a5568;">Registro Autocandidature</h3>
+            <div class="legend-box">
+        <strong>Legenda:</strong>
+        <span class="legend-item"><div class="color-swatch" style="background:#fffde7"></div> Colloquio fissato</span>
+        <span class="legend-item"><div class="color-swatch" style="background:#ffebee"></div> Non interessati</span>
+        <span class="legend-item"><div class="color-swatch" style="background:#e3f2fd"></div> In valutazione</span>
+        <span class="legend-item"><div class="color-swatch" style="background:#e8f5e9"></div> Positivo</span>
+    </div>
             <table>
                 <thead>
                     <tr>
@@ -1099,14 +1129,40 @@
             else target.classList.add('hidden');
         }
 
-        // ==========================================
-        // PARTE 1: SCRIPT GESTIONE AUTOCANDIDATURE
-        // ==========================================
-        function renderTableAuto() {
+// Funzione di supporto per decidere il colore della riga
+function getRowColorClass(item) {
+    // 1. Priorità ai risultati dei colloqui
+    let ultimoEsito = '';
+    // Controlla tutti gli invii per trovare l'ultimo esito inserito
+    [item.invio1, item.invio2, item.invio3].forEach(inv => {
+        if(inv && inv.colloqui) {
+            inv.colloqui.forEach(c => { if(c.data && c.esito) ultimoEsito = c.esito; });
+        }
+    });
+
+    if(ultimoEsito.includes("positivo definitivo")) return 'res-positivo';
+    if(ultimoEsito.includes("negativo")) return 'res-negativo';
+    if(ultimoEsito.includes("fase di valutazione")) return 'res-in-valutazione';
+
+    // 2. Se non ci sono esiti colloquio, controlla lo stato dell'ultimo invio
+    // (Prende lo stato dall'invio più recente che ne ha uno)
+    const ultimoInvio = item.invio3?.stato ? item.invio3 : (item.invio2?.stato ? item.invio2 : item.invio1);
+    
+    if(ultimoInvio?.stato === "Riscontro positivo") return 'status-colloquio';
+    if(ultimoInvio?.stato === "Riscontro negativo") return 'status-negativo';
+
+    return ''; // Nessun colore (riga bianca)
+}
+
+function renderTableAuto() {
     const tbody = document.getElementById('data-table-body-auto');
     tbody.innerHTML = '';
     elencoAuto.forEach((item, index) => {
         const tr = document.createElement('tr');
+        
+        // Assegna la classe del colore calcolata dalla funzione
+        tr.className = getRowColorClass(item);
+        
         tr.innerHTML = `
             <td><strong>${item.azienda}</strong> ${item.settore ? `<br><small style="color:#718096;">S: ${item.settore}</small>` : ''}</td>
             <td>${item.comune} ${item.km ? `<br><small style="color:#718096; font-weight:bold;">(${item.km} Km)</small>` : ''}</td>
