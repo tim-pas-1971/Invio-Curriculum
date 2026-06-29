@@ -1131,37 +1131,44 @@
 
 // Funzione di supporto per decidere il colore della riga
 function getRowColorClass(item) {
-    // 1. Priorità ai risultati dei colloqui
+    // Funzione helper per verificare se una stringa contiene un testo (case-insensitive)
+    const contiene = (str, target) => str && str.toLowerCase().includes(target.toLowerCase());
+
+    // 1. Priorità ai colloqui
     let ultimoEsito = '';
-    // Controlla tutti gli invii per trovare l'ultimo esito inserito
     [item.invio1, item.invio2, item.invio3].forEach(inv => {
         if(inv && inv.colloqui) {
             inv.colloqui.forEach(c => { if(c.data && c.esito) ultimoEsito = c.esito; });
         }
     });
 
-    if(ultimoEsito.includes("positivo definitivo")) return 'res-positivo';
-    if(ultimoEsito.includes("negativo")) return 'res-negativo';
-    if(ultimoEsito.includes("fase di valutazione")) return 'res-in-valutazione';
+    if(contiene(ultimoEsito, "positivo definitivo")) return 'res-positivo';
+    if(contiene(ultimoEsito, "negativo")) return 'res-negativo';
+    if(contiene(ultimoEsito, "fase di valutazione")) return 'res-in-valutazione';
 
-    // 2. Se non ci sono esiti colloquio, controlla lo stato dell'ultimo invio
-    // (Prende lo stato dall'invio più recente che ne ha uno)
+    // 2. Priorità agli stati degli invii
     const ultimoInvio = item.invio3?.stato ? item.invio3 : (item.invio2?.stato ? item.invio2 : item.invio1);
     
-    if(ultimoInvio?.stato === "Riscontro positivo") return 'status-colloquio';
-    if(ultimoInvio?.stato === "Riscontro negativo") return 'status-negativo';
+    if(contiene(ultimoInvio?.stato || '', "Riscontro positivo")) return 'status-colloquio';
+    if(contiene(ultimoInvio?.stato || '', "Riscontro negativo")) return 'status-negativo';
 
-    return ''; // Nessun colore (riga bianca)
+    return '';
 }
 
 function renderTableAuto() {
     const tbody = document.getElementById('data-table-body-auto');
     tbody.innerHTML = '';
+    
     elencoAuto.forEach((item, index) => {
         const tr = document.createElement('tr');
         
-        // Assegna la classe del colore calcolata dalla funzione
-        tr.className = getRowColorClass(item);
+        // --- MODIFICA QUI ---
+        // Richiamiamo la funzione che assegna la classe
+        const classeColore = getRowColorClass(item);
+        if(classeColore) {
+            tr.className = classeColore;
+        }
+        // --------------------
         
         tr.innerHTML = `
             <td><strong>${item.azienda}</strong> ${item.settore ? `<br><small style="color:#718096;">S: ${item.settore}</small>` : ''}</td>
