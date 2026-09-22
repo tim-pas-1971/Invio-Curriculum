@@ -1966,15 +1966,15 @@ function eliminaDocumento(index) {
 
 // Questa funzione deve stare FUORI da eliminaDocumento
 function aggiornaStatistiche() {
-    // 1. Aziende (213 - corretto)
+    // 1. Aziende contattate
     document.getElementById('stat-aziende').innerText = elencoAuto.length;
     
-    // 2. Invii totali (426 - contiamo solo se la data NON è un trattino)
+    // 2. Invii totali: contiamo data1, data2 e ora anche data3 (escludendo i trattini)
     let inviiTotali = 0;
     elencoAuto.forEach(item => {
         if (item.data1 && item.data1 !== '-') inviiTotali++;
         if (item.data2 && item.data2 !== '-') inviiTotali++;
-        // Ignoriamo data3 perché non è un invio effettuato
+        if (item.data3 && item.data3 !== '-') inviiTotali++; // Riabilitiamo il 3° invio!
     });
     
     document.getElementById('stat-invii').innerText = inviiTotali;
