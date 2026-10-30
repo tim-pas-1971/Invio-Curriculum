@@ -791,7 +791,7 @@
                         <option value="">-- Seleziona --</option>
                         <option value="Tempo determinato">Tempo determinato</option>
                         <option value="Tempo indeterminato">Tempo indeterminato</option>
-                        <option value="Contratto somministrazione">Contratto somministrazione</option>
+                        <option value="Contratto collaborazione / Co.Co.Co">Contratto collaborazione / Co.Co.Co</option>
                     </select>
                 </div>
                 <div class="form-group hidden" id="sub-contratto-det-group">
@@ -1400,14 +1400,14 @@ function loadEditAuto(index) {
             const tempGroup = document.getElementById('tempistica-contratto-group');
             const label = document.getElementById('sub-contratto-label');
             
-            if(val === "Tempo determinato" || val === "Contratto somministrazione") {
+            if(val === "Tempo determinato" || val === "Contratto collaborazione / Co.Co.Co") {
                 detGroup.classList.remove('hidden');
                 tempGroup.classList.remove('hidden');
                 
                 if(val === "Tempo determinato") {
                     label.innerText = "Specifiche Tempo Determinato";
                 } else {
-                    label.innerText = "Specifiche Contratto Somministrazione";
+                    label.innerText = "Specifiche Contratto collaborazione / Co.Co.Co";
                 }
             } else {
                 detGroup.classList.add('hidden');
